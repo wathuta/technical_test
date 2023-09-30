@@ -4,6 +4,23 @@ package orders;
 
 option go_package = ".;orders";
 
+enum OrderStatus {
+  ORDER_STATUS_UNSPECIFIED = 0;
+  ORDER_STATUS_PENDING = 1;
+  ORDER_STATUS_PROCESSING = 2;
+  ORDER_STATUS_SHIPPED = 3;
+  ORDER_STATUS_DELIVERED = 4;
+  ORDER_STATUS_CANCELLED = 5;
+}
+
+enum PaymentMethod {
+  PAYMENT_METHOD_UNSPECIFIED = 0;
+  PAYMENT_METHOD_CREDIT_CARD = 1;
+  PAYMENT_METHOD_PAYPAL = 2;
+  PAYMENT_METHOD_BITCOIN = 3;
+  PAYMENT_METHOD_OTHER = 4;
+}
+
 message Address {
   string street = 1;
   string city = 2;
@@ -15,15 +32,15 @@ message Address {
 message Order {
   string order_id = 1;
   string customer_id = 2;
-  repeated string items_id = 3;
+  repeated string item_ids = 3;
   Address pickup_address = 4;
   Address delivery_address = 5;
   string shipping_method = 6;
-  string order_status = 7;
+  OrderStatus order_status = 7;
   string scheduled_pickup_datetime = 8;
   string scheduled_delivery_datetime = 9;
   string tracking_number = 10;
-  string payment_method = 11;
+  PaymentMethod payment_method = 11;
   string invoice_number = 12;
   string special_instructions = 13;
   double shipping_cost = 14;
@@ -31,13 +48,12 @@ message Order {
   // Add more fields as needed.
 }
 
-// Define services for order management.
 service OrderService {
-  rpc CreateOrder (CreateOrderRequest) returns (CreateOrderResponse);
-  rpc GetOrder (GetOrderRequest) returns (Order);
-  rpc ListOrders (GetOrderRequest) returns (Order);
-  rpc UpdateOrder (UpdateOrderRequest) returns (UpdateOrderResponse);
-  rpc DeleteOrder (DeleteOrderRequest) returns (DeleteOrderResponse);
+  rpc CreateOrder(CreateOrderRequest) returns (CreateOrderResponse);
+  rpc GetOrder(GetOrderRequest) returns (Order);
+  rpc ListOrders(ListOrdersRequest) returns (ListOrdersResponse);
+  rpc UpdateOrder(UpdateOrderRequest) returns (UpdateOrderResponse);
+  rpc DeleteOrder(DeleteOrderRequest) returns (DeleteOrderResponse);
 }
 
 message CreateOrderRequest {
@@ -50,6 +66,14 @@ message CreateOrderResponse {
 
 message GetOrderRequest {
   string order_id = 1;
+}
+
+message ListOrdersRequest {
+  repeated string order_ids = 1;
+}
+
+message ListOrdersResponse {
+  repeated Order orders = 1;
 }
 
 message UpdateOrderRequest {
