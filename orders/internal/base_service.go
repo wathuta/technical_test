@@ -6,8 +6,10 @@ import (
 	"os"
 	"time"
 
+	"github.com/jmoiron/sqlx"
 	handler "github.com/wathuta/technical_test/orders/internal/handler"
-	pproto "github.com/wathuta/technical_test/protos_gen/orders"
+	customersPb "github.com/wathuta/technical_test/protos_gen/customers"
+	ordersPb "github.com/wathuta/technical_test/protos_gen/orders"
 	"golang.org/x/exp/slog"
 	"google.golang.org/grpc"
 
@@ -18,36 +20,41 @@ type Service struct {
 	grpcSrv                 *grpc.Server
 	GracefulShutdownTimeout time.Duration
 
-	repo repository.Repository
+	db *sqlx.DB
 }
 type Options struct {
 	ListenAddress           string
 	GracefulShutdownTimeout time.Duration
 }
 
-func NewService(ctx context.Context, repo repository.Repository, opts Options) (*Service, error) {
+func NewService(ctx context.Context, db *sqlx.DB, opts Options) (*Service, error) {
 	listener, err := net.Listen("tcp", opts.ListenAddress)
 	if err != nil {
 		return nil, err
 	}
 
 	// Set up gRPC server
-	grpcSrv := grpc.NewServer()
+	grpcSrv := grpc.NewServer(grpc.EmptyServerOption{})
 	if err != nil {
 		return nil, err
 	}
-	profileSvc := handler.New(repo)
 
-	pproto.RegisterOrderServiceServer(grpcSrv, profileSvc)
+	repo := repository.NewRepository(db)
+
+	handler := handler.New(repo)
+
+	ordersPb.RegisterOrderServiceServer(grpcSrv, handler)
+	customersPb.RegisterCustomerServiceServer(grpcSrv, handler)
 
 	go func() {
+		slog.Info("listening", listener.Addr().String(), grpcSrv.GetServiceInfo())
 		if err := grpcSrv.Serve(listener); err != nil {
 			slog.Error("error", err)
 			os.Exit(1)
 		}
 	}()
 
-	return &Service{repo: repo, grpcSrv: grpcSrv}, nil
+	return &Service{db: db, grpcSrv: grpcSrv}, nil
 }
 
 func (s *Service) Shutdown() bool {
@@ -71,4 +78,7 @@ func (s *Service) Shutdown() bool {
 		// Shutdown completed within the timeout
 		return true
 	}
+}
+func (s *Service) Close() {
+	s.db.Close()
 }

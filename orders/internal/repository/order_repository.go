@@ -6,9 +6,9 @@ import (
 	"github.com/wathuta/technical_test/orders/internal/model"
 )
 
-func (p *PostgresRepository) CreateOrder(ctx context.Context, order model.Order)  {}
-func (p *PostgresRepository) UpdateOrder(ctx context.Context, order model.Order)  {}
-func (p *PostgresRepository) GetOrderById(ctx context.Context, orderId string)    {}
-func (p *PostgresRepository) GetOrderByUserId(ctx context.Context, userId string) {}
-func (p *PostgresRepository) ListOrder(ctx context.Context, order model.Order)    {}
-func (p *PostgresRepository) DeleteOrder(ctx context.Context, orderId string)     {}
+func (r *repository) CreateOrder(ctx context.Context, order *model.Order) {}
+func (r *repository) UpdateOrder(ctx context.Context, order *model.Order) {}
+func (r *repository) GetOrderById(ctx context.Context, orderId string)    {}
+func (r *repository) GetOrderByUserId(ctx context.Context, userId string) {}
+func (r *repository) ListOrder(ctx context.Context)                       {}
+func (r *repository) DeleteOrder(ctx context.Context, orderId string)     {}
