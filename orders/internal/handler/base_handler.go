@@ -1,11 +1,11 @@
-package orderhandler
+package handler
 
 import (
+	"github.com/wathuta/technical_test/orders/internal/repository"
+	"github.com/wathuta/technical_test/protos_gen/customers"
+	"github.com/wathuta/technical_test/protos_gen/orders"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-
-	"github.com/wathuta/technical_test/orders/internal/repository"
-	pproto "github.com/wathuta/technical_test/protos_gen/orders"
 )
 
 const (
@@ -21,13 +21,17 @@ var (
 	errResourceUpdateMaskRequired = status.Error(codes.InvalidArgument, "resource update mask required")
 )
 
-type ProfileService struct {
-	pproto.UnimplementedOrderServiceServer
-	persist repository.Repository
+type Handler struct {
+	customers.UnimplementedCustomerServiceServer
+	orders.UnimplementedOrderServiceServer
+
+	repo repository.Repository
 }
 
-func New(persist repository.Repository) *ProfileService {
-	return &ProfileService{
-		persist: persist,
+func New(
+	repo repository.Repository,
+) *Handler {
+	return &Handler{
+		repo: repo,
 	}
 }

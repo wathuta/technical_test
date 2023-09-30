@@ -8,7 +8,7 @@ require (
 	github.com/jackc/pgx/v4 v4.18.1
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/joho/godotenv v1.5.1
-	github.com/sirupsen/logrus v1.9.2
+	github.com/wathuta/technical_test/protos_gen/customers v0.0.0-20230930064954-8b527ea22047
 	github.com/wathuta/technical_test/protos_gen/orders v0.0.0-20230929162540-b5f1738bdd58
 	golang.org/x/exp v0.0.0-20230905200255-921286631fa9
 	google.golang.org/grpc v1.58.2

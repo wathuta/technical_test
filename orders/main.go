@@ -10,7 +10,6 @@ import (
 	"github.com/wathuta/technical_test/orders/internal"
 	"github.com/wathuta/technical_test/orders/internal/config"
 	database "github.com/wathuta/technical_test/orders/internal/platform/postgres"
-	"github.com/wathuta/technical_test/orders/internal/repository"
 	"golang.org/x/exp/slog"
 )
 
@@ -36,12 +35,13 @@ func main() {
 		}
 	}
 
-	r, err := repository.NewPostgresRepository()
+	db, err := database.OpenDBConnection()
 	if err != nil {
-		slog.Error("unable to connect to db", "error", err)
+		slog.Error("failed connect to DB", "error", err)
 		os.Exit(1)
 	}
-	service, err := internal.NewService(context.Background(), r, internal.Options{ListenAddress: os.Getenv(config.ListenAddressEnvVar)})
+
+	service, err := internal.NewService(context.Background(), db, internal.Options{ListenAddress: os.Getenv(config.ListenAddressEnvVar)})
 	if err != nil {
 		slog.Error("failed to start service", "error", err)
 		os.Exit(1)
