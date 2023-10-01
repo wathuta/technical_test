@@ -33,7 +33,7 @@ message GetCustomerByIdRequest {
 }
 
 message GetCustomerByIdResponse {
-  string customer_id = 1;
+  Customer customer = 1;
 }
 
 message UpdateCustomerRequest {
