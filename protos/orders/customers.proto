@@ -1,0 +1,64 @@
+syntax = "proto3";
+
+// Import the google/protobuf package for common types.
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+
+package customers;
+
+option go_package = ".;customers";
+
+message Customer {
+  string customer_id = 1;
+  string name = 2;
+  string email = 3;
+  string phone_number = 4;
+  string address = 5;
+  google.protobuf.Timestamp created_at = 6;  // Date and time of customer creation.
+  google.protobuf.Timestamp updated_at = 7;  // Date and time of customer information update.
+  google.protobuf.Timestamp deleted_at = 8;  // Date and time of customer deletion.
+  // Add more fields as needed for customers.
+}
+
+message CreateCustomerRequest {
+  Customer customer = 1;
+}
+
+message CreateCustomerResponse {
+  Customer customer = 1;
+}
+
+message GetCustomerByIdRequest {
+  string customer_id = 1;
+}
+
+message GetCustomerByIdResponse {
+  string customer_id = 1;
+}
+
+message UpdateCustomerRequest {
+  Customer customer = 1;
+
+  // Required. The list of fields to be updated.
+  google.protobuf.FieldMask update_mask = 2;
+}
+
+message UpdateCustomerResponse {
+  Customer customer = 1;
+
+}
+
+message DeleteCustomerRequest {
+  string customer_id = 1;
+}
+
+message DeleteCustomerResponse {
+  bool success = 1;
+}
+
+service CustomerService {
+  rpc CreateCustomer(CreateCustomerRequest) returns (CreateCustomerResponse);
+  rpc GetCustomerById(GetCustomerByIdRequest) returns (GetCustomerByIdResponse);
+  rpc UpdateCustomer(UpdateCustomerRequest) returns (UpdateCustomerResponse);
+  rpc DeleteCustomer(DeleteCustomerRequest) returns (DeleteCustomerResponse);
+}
