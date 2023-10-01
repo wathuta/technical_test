@@ -2,6 +2,7 @@ syntax = "proto3";
 
 // Import the google/protobuf package for common types.
 import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
 
 package customers;
 
@@ -23,12 +24,28 @@ message CreateCustomerRequest {
   Customer customer = 1;
 }
 
+message CreateCustomerResponse {
+  Customer customer = 1;
+}
+
 message GetCustomerByIdRequest {
+  string customer_id = 1;
+}
+
+message GetCustomerByIdResponse {
   string customer_id = 1;
 }
 
 message UpdateCustomerRequest {
   Customer customer = 1;
+
+  // Required. The list of fields to be updated.
+  google.protobuf.FieldMask update_mask = 2;
+}
+
+message UpdateCustomerResponse {
+  Customer customer = 1;
+
 }
 
 message DeleteCustomerRequest {
@@ -40,8 +57,8 @@ message DeleteCustomerResponse {
 }
 
 service CustomerService {
-  rpc CreateCustomer(CreateCustomerRequest) returns (Customer);
-  rpc GetCustomerById(GetCustomerByIdRequest) returns (Customer);
-  rpc UpdateCustomer(UpdateCustomerRequest) returns (Customer);
+  rpc CreateCustomer(CreateCustomerRequest) returns (CreateCustomerResponse);
+  rpc GetCustomerById(GetCustomerByIdRequest) returns (GetCustomerByIdResponse);
+  rpc UpdateCustomer(UpdateCustomerRequest) returns (UpdateCustomerResponse);
   rpc DeleteCustomer(DeleteCustomerRequest) returns (DeleteCustomerResponse);
 }
