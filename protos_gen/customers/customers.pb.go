@@ -271,7 +271,7 @@ type GetCustomerByIdResponse struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	CustomerId string `protobuf:"bytes,1,opt,name=customer_id,json=customerId,proto3" json:"customer_id,omitempty"`
+	Customer *Customer `protobuf:"bytes,1,opt,name=customer,proto3" json:"customer,omitempty"`
 }
 
 func (x *GetCustomerByIdResponse) Reset() {
@@ -306,11 +306,11 @@ func (*GetCustomerByIdResponse) Descriptor() ([]byte, []int) {
 	return file_protos_orders_customers_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *GetCustomerByIdResponse) GetCustomerId() string {
+func (x *GetCustomerByIdResponse) GetCustomer() *Customer {
 	if x != nil {
-		return x.CustomerId
+		return x.Customer
 	}
-	return ""
+	return nil
 }
 
 type UpdateCustomerRequest struct {
@@ -553,10 +553,11 @@ var file_protos_orders_customers_proto_rawDesc = []byte{
 	0x75, 0x73, 0x74, 0x6f, 0x6d, 0x65, 0x72, 0x42, 0x79, 0x49, 0x64, 0x52, 0x65, 0x71, 0x75, 0x65,
 	0x73, 0x74, 0x12, 0x1f, 0x0a, 0x0b, 0x63, 0x75, 0x73, 0x74, 0x6f, 0x6d, 0x65, 0x72, 0x5f, 0x69,
 	0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0a, 0x63, 0x75, 0x73, 0x74, 0x6f, 0x6d, 0x65,
-	0x72, 0x49, 0x64, 0x22, 0x3a, 0x0a, 0x17, 0x47, 0x65, 0x74, 0x43, 0x75, 0x73, 0x74, 0x6f, 0x6d,
-	0x65, 0x72, 0x42, 0x79, 0x49, 0x64, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x1f,
-	0x0a, 0x0b, 0x63, 0x75, 0x73, 0x74, 0x6f, 0x6d, 0x65, 0x72, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20,
-	0x01, 0x28, 0x09, 0x52, 0x0a, 0x63, 0x75, 0x73, 0x74, 0x6f, 0x6d, 0x65, 0x72, 0x49, 0x64, 0x22,
+	0x72, 0x49, 0x64, 0x22, 0x4a, 0x0a, 0x17, 0x47, 0x65, 0x74, 0x43, 0x75, 0x73, 0x74, 0x6f, 0x6d,
+	0x65, 0x72, 0x42, 0x79, 0x49, 0x64, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x2f,
+	0x0a, 0x08, 0x63, 0x75, 0x73, 0x74, 0x6f, 0x6d, 0x65, 0x72, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b,
+	0x32, 0x13, 0x2e, 0x63, 0x75, 0x73, 0x74, 0x6f, 0x6d, 0x65, 0x72, 0x73, 0x2e, 0x43, 0x75, 0x73,
+	0x74, 0x6f, 0x6d, 0x65, 0x72, 0x52, 0x08, 0x63, 0x75, 0x73, 0x74, 0x6f, 0x6d, 0x65, 0x72, 0x22,
 	0x85, 0x01, 0x0a, 0x15, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x43, 0x75, 0x73, 0x74, 0x6f, 0x6d,
 	0x65, 0x72, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x2f, 0x0a, 0x08, 0x63, 0x75, 0x73,
 	0x74, 0x6f, 0x6d, 0x65, 0x72, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x13, 0x2e, 0x63, 0x75,
@@ -636,22 +637,23 @@ var file_protos_orders_customers_proto_depIdxs = []int32{
 	9,  // 2: customers.Customer.deleted_at:type_name -> google.protobuf.Timestamp
 	0,  // 3: customers.CreateCustomerRequest.customer:type_name -> customers.Customer
 	0,  // 4: customers.CreateCustomerResponse.customer:type_name -> customers.Customer
-	0,  // 5: customers.UpdateCustomerRequest.customer:type_name -> customers.Customer
-	10, // 6: customers.UpdateCustomerRequest.update_mask:type_name -> google.protobuf.FieldMask
-	0,  // 7: customers.UpdateCustomerResponse.customer:type_name -> customers.Customer
-	1,  // 8: customers.CustomerService.CreateCustomer:input_type -> customers.CreateCustomerRequest
-	3,  // 9: customers.CustomerService.GetCustomerById:input_type -> customers.GetCustomerByIdRequest
-	5,  // 10: customers.CustomerService.UpdateCustomer:input_type -> customers.UpdateCustomerRequest
-	7,  // 11: customers.CustomerService.DeleteCustomer:input_type -> customers.DeleteCustomerRequest
-	2,  // 12: customers.CustomerService.CreateCustomer:output_type -> customers.CreateCustomerResponse
-	4,  // 13: customers.CustomerService.GetCustomerById:output_type -> customers.GetCustomerByIdResponse
-	6,  // 14: customers.CustomerService.UpdateCustomer:output_type -> customers.UpdateCustomerResponse
-	8,  // 15: customers.CustomerService.DeleteCustomer:output_type -> customers.DeleteCustomerResponse
-	12, // [12:16] is the sub-list for method output_type
-	8,  // [8:12] is the sub-list for method input_type
-	8,  // [8:8] is the sub-list for extension type_name
-	8,  // [8:8] is the sub-list for extension extendee
-	0,  // [0:8] is the sub-list for field type_name
+	0,  // 5: customers.GetCustomerByIdResponse.customer:type_name -> customers.Customer
+	0,  // 6: customers.UpdateCustomerRequest.customer:type_name -> customers.Customer
+	10, // 7: customers.UpdateCustomerRequest.update_mask:type_name -> google.protobuf.FieldMask
+	0,  // 8: customers.UpdateCustomerResponse.customer:type_name -> customers.Customer
+	1,  // 9: customers.CustomerService.CreateCustomer:input_type -> customers.CreateCustomerRequest
+	3,  // 10: customers.CustomerService.GetCustomerById:input_type -> customers.GetCustomerByIdRequest
+	5,  // 11: customers.CustomerService.UpdateCustomer:input_type -> customers.UpdateCustomerRequest
+	7,  // 12: customers.CustomerService.DeleteCustomer:input_type -> customers.DeleteCustomerRequest
+	2,  // 13: customers.CustomerService.CreateCustomer:output_type -> customers.CreateCustomerResponse
+	4,  // 14: customers.CustomerService.GetCustomerById:output_type -> customers.GetCustomerByIdResponse
+	6,  // 15: customers.CustomerService.UpdateCustomer:output_type -> customers.UpdateCustomerResponse
+	8,  // 16: customers.CustomerService.DeleteCustomer:output_type -> customers.DeleteCustomerResponse
+	13, // [13:17] is the sub-list for method output_type
+	9,  // [9:13] is the sub-list for method input_type
+	9,  // [9:9] is the sub-list for extension type_name
+	9,  // [9:9] is the sub-list for extension extendee
+	0,  // [0:9] is the sub-list for field type_name
 }
 
 func init() { file_protos_orders_customers_proto_init() }
