@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/wathuta/technical_test/orders/internal/model"
 )
 
@@ -19,7 +20,7 @@ func (r *repository) CreateCustomer(ctx context.Context, customer *model.Custome
 
 	return customer, nil
 }
-func (r *repository) GetCustomerById(ctx context.Context, customerID string) (*model.Customer, error) {
+func (r *repository) GetCustomerById(ctx context.Context, customerID uuid.UUID) (*model.Customer, error) {
 	customer := model.Customer{}
 
 	query := `SELECT * FROM customers WHERE id = $1`
@@ -47,16 +48,14 @@ func (r *repository) UpdateCustomer(ctx context.Context, updateCustomer *model.C
 	return updateCustomer, nil
 
 }
-func (r *repository) DeleteCustomer(ctx context.Context, customerID string) (bool, error) {
-	query := `DELETE FROM customers WHERE id = $1`
-	res, err := r.connection.Exec(query, customerID)
+func (r *repository) DeleteCustomer(ctx context.Context, customerID uuid.UUID) (*model.Customer, error) {
+	query := `DELETE FROM customers WHERE customer_id = $1 RETURNING *`
+	var customer model.Customer
+	err := r.connection.QueryRowContext(ctx, query, customerID).
+		Scan(&customer.CustomerID, &customer.Name, &customer.Email, &customer.PhoneNumber, &customer.Address, &customer.CreatedAt, &customer.UpdatedAt, &customer.DeletedAt)
 	if err != nil {
-		return false, err
-	}
-	if n, err := res.RowsAffected(); err == nil && n == 0 {
-		return false, err
+		return nil, err
 	}
 
-	return true, nil
-
+	return &customer, nil
 }

@@ -18,9 +18,9 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CustomerServiceClient interface {
-	CreateCustomer(ctx context.Context, in *CreateCustomerRequest, opts ...grpc.CallOption) (*Customer, error)
-	GetCustomerById(ctx context.Context, in *GetCustomerByIdRequest, opts ...grpc.CallOption) (*Customer, error)
-	UpdateCustomer(ctx context.Context, in *UpdateCustomerRequest, opts ...grpc.CallOption) (*Customer, error)
+	CreateCustomer(ctx context.Context, in *CreateCustomerRequest, opts ...grpc.CallOption) (*CreateCustomerResponse, error)
+	GetCustomerById(ctx context.Context, in *GetCustomerByIdRequest, opts ...grpc.CallOption) (*GetCustomerByIdResponse, error)
+	UpdateCustomer(ctx context.Context, in *UpdateCustomerRequest, opts ...grpc.CallOption) (*UpdateCustomerResponse, error)
 	DeleteCustomer(ctx context.Context, in *DeleteCustomerRequest, opts ...grpc.CallOption) (*DeleteCustomerResponse, error)
 }
 
@@ -32,8 +32,8 @@ func NewCustomerServiceClient(cc grpc.ClientConnInterface) CustomerServiceClient
 	return &customerServiceClient{cc}
 }
 
-func (c *customerServiceClient) CreateCustomer(ctx context.Context, in *CreateCustomerRequest, opts ...grpc.CallOption) (*Customer, error) {
-	out := new(Customer)
+func (c *customerServiceClient) CreateCustomer(ctx context.Context, in *CreateCustomerRequest, opts ...grpc.CallOption) (*CreateCustomerResponse, error) {
+	out := new(CreateCustomerResponse)
 	err := c.cc.Invoke(ctx, "/customers.CustomerService/CreateCustomer", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -41,8 +41,8 @@ func (c *customerServiceClient) CreateCustomer(ctx context.Context, in *CreateCu
 	return out, nil
 }
 
-func (c *customerServiceClient) GetCustomerById(ctx context.Context, in *GetCustomerByIdRequest, opts ...grpc.CallOption) (*Customer, error) {
-	out := new(Customer)
+func (c *customerServiceClient) GetCustomerById(ctx context.Context, in *GetCustomerByIdRequest, opts ...grpc.CallOption) (*GetCustomerByIdResponse, error) {
+	out := new(GetCustomerByIdResponse)
 	err := c.cc.Invoke(ctx, "/customers.CustomerService/GetCustomerById", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -50,8 +50,8 @@ func (c *customerServiceClient) GetCustomerById(ctx context.Context, in *GetCust
 	return out, nil
 }
 
-func (c *customerServiceClient) UpdateCustomer(ctx context.Context, in *UpdateCustomerRequest, opts ...grpc.CallOption) (*Customer, error) {
-	out := new(Customer)
+func (c *customerServiceClient) UpdateCustomer(ctx context.Context, in *UpdateCustomerRequest, opts ...grpc.CallOption) (*UpdateCustomerResponse, error) {
+	out := new(UpdateCustomerResponse)
 	err := c.cc.Invoke(ctx, "/customers.CustomerService/UpdateCustomer", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -72,9 +72,9 @@ func (c *customerServiceClient) DeleteCustomer(ctx context.Context, in *DeleteCu
 // All implementations must embed UnimplementedCustomerServiceServer
 // for forward compatibility
 type CustomerServiceServer interface {
-	CreateCustomer(context.Context, *CreateCustomerRequest) (*Customer, error)
-	GetCustomerById(context.Context, *GetCustomerByIdRequest) (*Customer, error)
-	UpdateCustomer(context.Context, *UpdateCustomerRequest) (*Customer, error)
+	CreateCustomer(context.Context, *CreateCustomerRequest) (*CreateCustomerResponse, error)
+	GetCustomerById(context.Context, *GetCustomerByIdRequest) (*GetCustomerByIdResponse, error)
+	UpdateCustomer(context.Context, *UpdateCustomerRequest) (*UpdateCustomerResponse, error)
 	DeleteCustomer(context.Context, *DeleteCustomerRequest) (*DeleteCustomerResponse, error)
 	mustEmbedUnimplementedCustomerServiceServer()
 }
@@ -83,13 +83,13 @@ type CustomerServiceServer interface {
 type UnimplementedCustomerServiceServer struct {
 }
 
-func (UnimplementedCustomerServiceServer) CreateCustomer(context.Context, *CreateCustomerRequest) (*Customer, error) {
+func (UnimplementedCustomerServiceServer) CreateCustomer(context.Context, *CreateCustomerRequest) (*CreateCustomerResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateCustomer not implemented")
 }
-func (UnimplementedCustomerServiceServer) GetCustomerById(context.Context, *GetCustomerByIdRequest) (*Customer, error) {
+func (UnimplementedCustomerServiceServer) GetCustomerById(context.Context, *GetCustomerByIdRequest) (*GetCustomerByIdResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCustomerById not implemented")
 }
-func (UnimplementedCustomerServiceServer) UpdateCustomer(context.Context, *UpdateCustomerRequest) (*Customer, error) {
+func (UnimplementedCustomerServiceServer) UpdateCustomer(context.Context, *UpdateCustomerRequest) (*UpdateCustomerResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateCustomer not implemented")
 }
 func (UnimplementedCustomerServiceServer) DeleteCustomer(context.Context, *DeleteCustomerRequest) (*DeleteCustomerResponse, error) {

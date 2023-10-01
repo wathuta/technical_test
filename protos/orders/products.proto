@@ -6,44 +6,89 @@ import "google/protobuf/timestamp.proto";
 
 option go_package = ".;products";
 
+
+// Enum for product categories
+enum ProductCategory {
+  UNKNOWN_CATEGORY = 0;
+  ELECTRONICS = 1;
+  CLOTHING = 2;
+  BOOKS = 3;
+  FOOD = 4;
+  TOYS = 5;
+  OTHER = 6;
+}
+
+// Message representing product attributes
+message ProductAttributes {
+  string brand = 1;
+  string model = 2;
+  double price = 3;
+}
+
+// Message representing a product
 message Product {
   string product_id = 1;
   string name = 2;
-  string description = 3;
-  double price = 4;
-  int32 quantity_available = 5;
-  string manufacturer = 6;
-  string category = 7;
-  repeated string tags = 8;
-  google.protobuf.Timestamp created_at = 9;   // Date and time of product creation.
-  google.protobuf.Timestamp updated_at = 10;  // Date and time of product information update.
-  google.protobuf.Timestamp deleted_at = 11;  // Date and time of product deletion.
-  // Add more fields as needed for products.
+  ProductCategory category = 3;
+  ProductAttributes attributes = 4;
+  int32 stock_quantity = 5;
+  bool is_available = 6;
+  google.protobuf.Timestamp created_at = 7;
+  google.protobuf.Timestamp updated_at = 8;
 }
 
+// Request message for creating a new product
 message CreateProductRequest {
   Product product = 1;
 }
 
-message GetProductByIdRequest {
-  string product_id = 1;
-}
-
-message UpdateProductRequest {
+// Response message for creating a new product
+message CreateProductResponse {
   Product product = 1;
 }
 
+// Request message for retrieving a product by ID
+message GetProductRequest {
+  string product_id = 1;
+}
+
+// Response message for retrieving a product by ID
+message GetProductResponse {
+  Product product = 1;
+}
+
+// Request message for updating a product
+message UpdateProductRequest {
+  string product_id = 1;
+  Product product = 2;
+}
+
+// Response message for updating a product
+message UpdateProductResponse {
+  Product product = 1;
+}
+
+// Request message for deleting a product by ID
 message DeleteProductRequest {
   string product_id = 1;
 }
 
+// Response message for deleting a product by ID
 message DeleteProductResponse {
   bool success = 1;
 }
 
+// Service for managing products
 service ProductService {
-  rpc CreateProduct(CreateProductRequest) returns (Product);
-  rpc GetProductById(GetProductByIdRequest) returns (Product);
-  rpc UpdateProduct(UpdateProductRequest) returns (Product);
+  // Create a new product
+  rpc CreateProduct(CreateProductRequest) returns (CreateProductResponse);
+
+  // Retrieve a product by ID
+  rpc GetProduct(GetProductRequest) returns (GetProductResponse);
+
+  // Update an existing product
+  rpc UpdateProduct(UpdateProductRequest) returns (UpdateProductResponse);
+
+  // Delete a product by ID
   rpc DeleteProduct(DeleteProductRequest) returns (DeleteProductResponse);
 }
