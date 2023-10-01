@@ -33,14 +33,16 @@ message GetCustomerByIdRequest {
 }
 
 message GetCustomerByIdResponse {
-  string customer_id = 1;
+  Customer customer = 1;
 }
 
 message UpdateCustomerRequest {
-  Customer customer = 1;
+  string name = 1;
+  string email = 2;
+  string phone_number = 3;
+  string address = 4;
 
-  // Required. The list of fields to be updated.
-  google.protobuf.FieldMask update_mask = 2;
+  google.protobuf.FieldMask update_mask = 5;
 }
 
 message UpdateCustomerResponse {
