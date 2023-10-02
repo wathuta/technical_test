@@ -3,6 +3,7 @@ syntax = "proto3";
 package products;
 
 import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
 
 option go_package = ".;products";
 
@@ -29,12 +30,14 @@ message ProductAttributes {
 message Product {
   string product_id = 1;
   string name = 2;
-  ProductCategory category = 3;
-  ProductAttributes attributes = 4;
-  int32 stock_quantity = 5;
-  bool is_available = 6;
-  google.protobuf.Timestamp created_at = 7;
-  google.protobuf.Timestamp updated_at = 8;
+  string sku =3;
+  ProductCategory category = 4;
+  ProductAttributes attributes = 5;
+  int32 stock_quantity = 6;
+  bool is_available = 7;
+  google.protobuf.Timestamp created_at = 8;
+  google.protobuf.Timestamp updated_at = 9;
+  google.protobuf.Timestamp deleted_at = 10;
 }
 
 // Request message for creating a new product
@@ -48,19 +51,26 @@ message CreateProductResponse {
 }
 
 // Request message for retrieving a product by ID
-message GetProductRequest {
+message GetProductByIdRequest {
   string product_id = 1;
 }
 
 // Response message for retrieving a product by ID
-message GetProductResponse {
+message GetProductByIdResponse {
   Product product = 1;
 }
 
 // Request message for updating a product
 message UpdateProductRequest {
   string product_id = 1;
-  Product product = 2;
+  string name = 2;
+  string sku =3;
+  ProductCategory category = 4;
+  ProductAttributes attributes = 5;
+  int32 stock_quantity = 6;
+  bool is_available = 7;
+
+  google.protobuf.FieldMask update_mask = 8;
 }
 
 // Response message for updating a product
@@ -84,7 +94,7 @@ service ProductService {
   rpc CreateProduct(CreateProductRequest) returns (CreateProductResponse);
 
   // Retrieve a product by ID
-  rpc GetProduct(GetProductRequest) returns (GetProductResponse);
+  rpc GetProductById(GetProductByIdRequest) returns (GetProductByIdResponse);
 
   // Update an existing product
   rpc UpdateProduct(UpdateProductRequest) returns (UpdateProductResponse);
