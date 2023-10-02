@@ -28,7 +28,7 @@ func (h *Handler) CreateProduct(ctx context.Context, req *productspb.CreateProdu
 	resource.CreatedAt = time.Now()
 	resource.DeletedAt = time.Time{}
 
-	// validate request
+	// validate Model
 	if err = common.ValidateGeneric(resource); err != nil {
 		slog.Error("failed to validate product resource", "error", err)
 		return nil, status.Error(codes.InvalidArgument, err.Error())

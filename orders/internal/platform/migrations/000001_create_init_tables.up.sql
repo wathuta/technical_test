@@ -29,7 +29,6 @@ CREATE TABLE orders (
     invoice_number VARCHAR(255),
     special_instructions TEXT,
     shipping_cost DOUBLE PRECISION,
-    insurance_information VARCHAR(255),
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP

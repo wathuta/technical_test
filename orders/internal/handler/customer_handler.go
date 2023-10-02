@@ -149,6 +149,7 @@ func (h *Handler) DeleteCustomer(ctx context.Context, req *customersPb.DeleteCus
 	}
 	slog.Debug("delete customer", "customer_id", req.CustomerId)
 
+	// verify supplied uuid
 	customerUUID, err := uuid.Parse(req.CustomerId)
 	if err != nil {
 		slog.Error("invalid customer uuid value", "error", err)

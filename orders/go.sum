@@ -174,8 +174,8 @@ github.com/stretchr/testify v1.8.2 h1:+h33VjcLVPDHtOdpUCuF+7gSuG3yGIftsP1YvFihtJ
 github.com/stretchr/testify v1.8.2/go.mod h1:w2LPCIKwWwSfY2zedu0+kehJoqGctiVI29o6fzry7u4=
 github.com/wathuta/technical_test/protos_gen/customers v0.0.0-20231002045818-89f9c465dacb h1:nGGg0IHZn6H2hqEsGhzJTHGFyUti7SiGuWUw1HjToXs=
 github.com/wathuta/technical_test/protos_gen/customers v0.0.0-20231002045818-89f9c465dacb/go.mod h1:Ed51EF0Q08OTR1Apq0p77KD0fh9ZnRoXZga5Wm9zvm0=
-github.com/wathuta/technical_test/protos_gen/orders v0.0.0-20231002045818-89f9c465dacb h1:Vk3Sr2n7ZZQFI3upOxHNkOy39NLtRBw+U99gTcGVJcM=
-github.com/wathuta/technical_test/protos_gen/orders v0.0.0-20231002045818-89f9c465dacb/go.mod h1:xR5gI7pi+876XDK+O24WZSoppzbNN+vdZPdCpvCmww0=
+github.com/wathuta/technical_test/protos_gen/orders v0.0.0-20231002121903-af519ef9fdd0 h1:ABPegdFDeKDDiy3QcS+maLSRIzE/79J0Tt2wyE3Hc4U=
+github.com/wathuta/technical_test/protos_gen/orders v0.0.0-20231002121903-af519ef9fdd0/go.mod h1:xR5gI7pi+876XDK+O24WZSoppzbNN+vdZPdCpvCmww0=
 github.com/wathuta/technical_test/protos_gen/products v0.0.0-20231002045818-89f9c465dacb h1:q/R0P4ZDVuhIGLPxY9h2Je81eJwcVzNtymISYiMQ1oc=
 github.com/wathuta/technical_test/protos_gen/products v0.0.0-20231002045818-89f9c465dacb/go.mod h1:FyDY9jd5DXHEtX9zhWJjMCNFwdB6y42ASv6wLo7qe6k=
 github.com/yuin/goldmark v1.4.13/go.mod h1:6yULJ656Px+3vBD8DxQVa3kxgyrAnzto9xy5taEt/CY=

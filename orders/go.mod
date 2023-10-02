@@ -10,7 +10,7 @@ require (
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/joho/godotenv v1.5.1
 	github.com/wathuta/technical_test/protos_gen/customers v0.0.0-20231002045818-89f9c465dacb
-	github.com/wathuta/technical_test/protos_gen/orders v0.0.0-20231002045818-89f9c465dacb
+	github.com/wathuta/technical_test/protos_gen/orders v0.0.0-20231002121903-af519ef9fdd0
 	github.com/wathuta/technical_test/protos_gen/products v0.0.0-20231002045818-89f9c465dacb
 	golang.org/x/exp v0.0.0-20230905200255-921286631fa9
 	google.golang.org/grpc v1.58.2
