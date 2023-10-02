@@ -32,7 +32,10 @@ type OrderServiceClient interface {
 	GetOrdersByProductId(ctx context.Context, in *GetOrdersByProductIdRequest, opts ...grpc.CallOption) (*GetOrdersByProductIdResponse, error)
 	// Get order details by ID
 	GetOrderDetailsById(ctx context.Context, in *GetOrderDetailByIdRequest, opts ...grpc.CallOption) (*GetOrderDetailByIdResponse, error)
+	// Update order details
 	UpdateOrderDetails(ctx context.Context, in *GetOrderDetailByIdRequest, opts ...grpc.CallOption) (*GetOrderDetailByIdResponse, error)
+	// Get Order details by UserID
+	GetOrderDetailsByOrderId(ctx context.Context, in *GetOrderDetailsByOrderIdRequest, opts ...grpc.CallOption) (*GetOrderDetailsByOrderIdResponse, error)
 }
 
 type orderServiceClient struct {
@@ -115,6 +118,15 @@ func (c *orderServiceClient) UpdateOrderDetails(ctx context.Context, in *GetOrde
 	return out, nil
 }
 
+func (c *orderServiceClient) GetOrderDetailsByOrderId(ctx context.Context, in *GetOrderDetailsByOrderIdRequest, opts ...grpc.CallOption) (*GetOrderDetailsByOrderIdResponse, error) {
+	out := new(GetOrderDetailsByOrderIdResponse)
+	err := c.cc.Invoke(ctx, "/orders.OrderService/GetOrderDetailsByOrderId", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // OrderServiceServer is the server API for OrderService service.
 // All implementations must embed UnimplementedOrderServiceServer
 // for forward compatibility
@@ -133,7 +145,10 @@ type OrderServiceServer interface {
 	GetOrdersByProductId(context.Context, *GetOrdersByProductIdRequest) (*GetOrdersByProductIdResponse, error)
 	// Get order details by ID
 	GetOrderDetailsById(context.Context, *GetOrderDetailByIdRequest) (*GetOrderDetailByIdResponse, error)
+	// Update order details
 	UpdateOrderDetails(context.Context, *GetOrderDetailByIdRequest) (*GetOrderDetailByIdResponse, error)
+	// Get Order details by UserID
+	GetOrderDetailsByOrderId(context.Context, *GetOrderDetailsByOrderIdRequest) (*GetOrderDetailsByOrderIdResponse, error)
 	mustEmbedUnimplementedOrderServiceServer()
 }
 
@@ -164,6 +179,9 @@ func (UnimplementedOrderServiceServer) GetOrderDetailsById(context.Context, *Get
 }
 func (UnimplementedOrderServiceServer) UpdateOrderDetails(context.Context, *GetOrderDetailByIdRequest) (*GetOrderDetailByIdResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateOrderDetails not implemented")
+}
+func (UnimplementedOrderServiceServer) GetOrderDetailsByOrderId(context.Context, *GetOrderDetailsByOrderIdRequest) (*GetOrderDetailsByOrderIdResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetOrderDetailsByOrderId not implemented")
 }
 func (UnimplementedOrderServiceServer) mustEmbedUnimplementedOrderServiceServer() {}
 
@@ -322,6 +340,24 @@ func _OrderService_UpdateOrderDetails_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _OrderService_GetOrderDetailsByOrderId_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetOrderDetailsByOrderIdRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrderServiceServer).GetOrderDetailsByOrderId(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/orders.OrderService/GetOrderDetailsByOrderId",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrderServiceServer).GetOrderDetailsByOrderId(ctx, req.(*GetOrderDetailsByOrderIdRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // OrderService_ServiceDesc is the grpc.ServiceDesc for OrderService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -360,6 +396,10 @@ var OrderService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateOrderDetails",
 			Handler:    _OrderService_UpdateOrderDetails_Handler,
+		},
+		{
+			MethodName: "GetOrderDetailsByOrderId",
+			Handler:    _OrderService_GetOrderDetailsByOrderId_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
