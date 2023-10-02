@@ -3,7 +3,6 @@ package repository
 import (
 	"context"
 
-	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	"github.com/wathuta/technical_test/orders/internal/model"
 )
@@ -17,9 +16,14 @@ type Repository interface {
 	DeleteOrder(ctx context.Context, orderId string)
 
 	CreateCustomer(ctx context.Context, customer *model.Customer) (*model.Customer, error)
-	GetCustomerById(ctx context.Context, customerID uuid.UUID) (*model.Customer, error)
-	UpdateCustomer(ctx context.Context, updateCustomer *model.Customer) (*model.Customer, error)
-	DeleteCustomer(ctx context.Context, customerID uuid.UUID) (*model.Customer, error)
+	GetCustomerById(ctx context.Context, customerID string) (*model.Customer, error)
+	UpdateCustomerFields(ctx context.Context, customerID string, updateFields map[string]interface{}) (*model.Customer, error)
+	DeleteCustomer(ctx context.Context, customerID string) (*model.Customer, error)
+
+	CreateProduct(ctx context.Context, product *model.Product) (*model.Product, error)
+	GetProductById(ctx context.Context, productId string) (*model.Product, error)
+	DeleteProduct(ctx context.Context, productId string) (*model.Product, error)
+	UpdateProductFields(ctx context.Context, productId string, updateFields map[string]interface{}) (*model.Product, error)
 }
 
 type repository struct {
