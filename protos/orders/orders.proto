@@ -37,8 +37,8 @@ message Order {
   Address delivery_address = 5;
   string shipping_method = 6;
   OrderStatus order_status = 7;
-  string scheduled_pickup_datetime = 8;
-  string scheduled_delivery_datetime = 9;
+  google.protobuf.Timestamp scheduled_pickup_datetime = 8;
+  google.protobuf.Timestamp scheduled_delivery_datetime = 9;
   string tracking_number = 10;
   PaymentMethod payment_method = 11;
   string invoice_number = 12;
@@ -84,8 +84,21 @@ service OrderService {
     // Get order details by ID
     rpc GetOrderDetailsById (GetOrderDetailByIdRequest) returns(GetOrderDetailByIdResponse);
 
+    // Update order details
     rpc UpdateOrderDetails (GetOrderDetailByIdRequest) returns(GetOrderDetailByIdResponse);
 
+    // Get Order details by UserID
+    rpc GetOrderDetailsByOrderId(GetOrderDetailsByOrderIdRequest) returns (GetOrderDetailsByOrderIdResponse);
+}
+
+// Request to get order details
+message GetOrderDetailsByOrderIdRequest {
+  string order_details_id = 1;
+}
+
+// Request to get order details
+message GetOrderDetailsByOrderIdResponse {
+  repeated OrderDetails order_details = 1;
 }
 
 // Request to get order details
@@ -120,6 +133,7 @@ message CreateOrderRequest {
 // Response after creating an order
 message CreateOrderResponse {
    Order order = 1;
+   OrderDetails OrderDetails = 2;
 }
 
 // Request to get an order
@@ -171,4 +185,5 @@ message GetOrdersByProductIdRequest {
 // Response after getting orders by product ID
 message GetOrdersByProductIdResponse {
     repeated Order orders = 1;
+    repeated OrderDetails order_details = 2;
 }
