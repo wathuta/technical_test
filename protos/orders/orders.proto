@@ -85,7 +85,7 @@ service OrderService {
     rpc GetOrderDetailsById (GetOrderDetailByIdRequest) returns(GetOrderDetailByIdResponse);
 
     // Update order details
-    rpc UpdateOrderDetails (GetOrderDetailByIdRequest) returns(UpdateOrderDetailsResponse);
+    rpc UpdateOrderDetails (UpdateOrderDetailsRequest) returns(UpdateOrderDetailsResponse);
 
     // Get Order details by UserID
     rpc ListOrderDetailsByOrderId(ListOrderDetailsByOrderIdRequest) returns (ListOrderDetailsByOrderIdResponse);
@@ -97,7 +97,7 @@ message ListOrderDetailsByOrderIdRequest {
   // Optional. Page size for result pagination. Capped at an unspecified value.
   int32 page_size = 2;
   // Optional. Page token is the offset value. If it is empty it defaults to 0.
-  bytes page_token = 3;
+  int32 page_token = 3;
   // Optional. Specifies the ordering of results as a comma separated list of fields. By default, the sorting order is ascending. For descending order, append " desc" to a field name.
   string order_by = 4;
 }
@@ -183,7 +183,7 @@ message ListOrdersByCustomerIdRequest {
 
     int32 page_size = 2;
     // Optional. The filter to apply to list results. Example: `email="email"`.
-    bytes page_token = 3;
+    int32 page_token = 3;
     // Optional. Specifies the ordering of results as a comma separated list of fields. By default, the sorting order is ascending. For descending order, append " desc" to a field name.
     string order_by = 4;
 }
@@ -202,7 +202,7 @@ message ListOrdersByProductIdRequest {
     // Optional. Page size for result pagination. Capped at an unspecified value.
     int32 page_size = 2;
     // Optional. Page token is the offset value. If it is empty it defaults to 0.
-    bytes page_token = 3;
+    int32 page_token = 3;
     // Optional. Specifies the ordering of results as a comma separated list of fields. By default, the sorting order is ascending. For descending order, append " desc" to a field name.
     string order_by = 4;
 }
