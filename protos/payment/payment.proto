@@ -1,0 +1,85 @@
+syntax = "proto3";
+
+package ecommerce;
+
+// Import the google/protobuf package for Timestamp support.
+import "google/protobuf/timestamp.proto";
+
+option go_package = ".;payment";
+// Payment represents a payment made by a customer for an order.
+message Payment {
+    string id = 1;
+    string order_id = 2;
+    PaymentMethod payment_method = 3;
+    double amount = 4;
+    string currency = 5;
+    PaymentStatus status = 6;
+    google.protobuf.Timestamp created_at = 7;
+    google.protobuf.Timestamp updated_at = 8;
+  }
+
+  // PaymentStatus represents possible payment statuses.
+  enum PaymentStatus {
+    PENDING = 0;
+    COMPLETED = 1;
+    FAILED = 2;
+  }
+
+  // PaymentMethod represents possible payment methods.
+  enum PaymentMethod {
+    CREDIT_CARD = 0;
+    PAYPAL = 1;
+    MPESA = 2;
+    // Add more payment methods as needed.
+  }
+
+  // CreatePaymentRequest represents a request to create a new payment.
+  message CreatePaymentRequest {
+    string order_id = 1;
+    PaymentMethod payment_method = 2;
+    double amount = 3;
+    string currency = 4;
+  }
+
+  // CreatePaymentResponse represents the response after creating a payment.
+  message CreatePaymentResponse {
+    Payment payment = 1;
+  }
+
+  // GetPaymentByIdRequest represents a request to retrieve a payment by ID.
+  message GetPaymentByIdRequest {
+    string id = 1;
+  }
+
+  // GetPaymentByIdResponse represents the response after retrieving a payment by ID.
+  message GetPaymentByIdResponse {
+    Payment payment = 1;
+  }
+
+  // ListPaymentsRequest represents a request to list payments with optional filtering.
+  message ListPaymentsRequest {
+    int32 page_size = 1;
+    string page_token = 2;
+    string order_id = 3;
+    PaymentStatus status = 4;
+    google.protobuf.Timestamp start_time = 5;
+    google.protobuf.Timestamp end_time = 6;
+  }
+
+  // ListPaymentsResponse represents the response for listing payments.
+  message ListPaymentsResponse {
+    repeated Payment payments = 1;
+    string next_page_token = 2;
+  }
+
+  // PaymentService defines the payment service.
+  service PaymentService {
+    // CreatePayment creates a new payment.
+    rpc CreatePayment(CreatePaymentRequest) returns (CreatePaymentResponse);
+
+    // GetPayment retrieves a payment by ID.
+    rpc GetPaymentById(GetPaymentByIdRequest) returns (GetPaymentByIdResponse);
+
+    // ListPayments lists payments with optional filtering.
+    rpc ListPayments(ListPaymentsRequest) returns (ListPaymentsResponse);
+  }
