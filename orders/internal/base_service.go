@@ -8,9 +8,10 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	handler "github.com/wathuta/technical_test/orders/internal/handler"
+
 	customersPb "github.com/wathuta/technical_test/protos_gen/customers"
 	ordersPb "github.com/wathuta/technical_test/protos_gen/orders"
-	"github.com/wathuta/technical_test/protos_gen/products"
+	prductsPb "github.com/wathuta/technical_test/protos_gen/products"
 	"golang.org/x/exp/slog"
 	"google.golang.org/grpc"
 
@@ -46,7 +47,7 @@ func NewService(ctx context.Context, db *sqlx.DB, opts Options) (*Service, error
 
 	ordersPb.RegisterOrderServiceServer(grpcSrv, handler)
 	customersPb.RegisterCustomerServiceServer(grpcSrv, handler)
-	products.RegisterProductServiceServer(grpcSrv, handler)
+	prductsPb.RegisterProductServiceServer(grpcSrv, handler)
 
 	go func() {
 		slog.Info("starting the server", "listening address:", listener.Addr().String())

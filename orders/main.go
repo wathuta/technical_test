@@ -15,8 +15,11 @@ import (
 
 func main() {
 	var err error
-	l := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug, AddSource: true}))
-	slog.SetDefault(l)
+	var programLevel = new(slog.LevelVar) // Info by default
+	h := slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{Level: programLevel, AddSource: true})
+	slog.SetDefault(slog.New(h))
+	programLevel.Set(slog.LevelDebug)
+
 	if !config.HasAllEnvVariables() {
 		envFileName := ".env.dev"
 		slog.Info("loading env file", "fileName", envFileName)

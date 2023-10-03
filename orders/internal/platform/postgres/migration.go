@@ -24,14 +24,11 @@ func RunMigrations() error {
 		return err
 	}
 
-	slog.Info(*connUri)
 	err = m.Up()
-	slog.Info(*connUri, err)
 	if err != nil && !errors.Is(err, migrate.ErrNoChange) {
 		slog.Error("migration up failed", "error", err, m.Log.Verbose())
 		return err
 	}
-	slog.Info("hello")
 
 	log.Println("migrations finished successfully")
 	return nil
