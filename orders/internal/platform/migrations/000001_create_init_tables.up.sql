@@ -1,16 +1,19 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
+-- Column names for all the tables are shared with the protobuf fields for easier mapping
 CREATE TABLE products (
     product_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     name VARCHAR(255) NOT NULL,
-    category INT NOT NULL,
+    sku VARCHAR(255) NOT NULL UNIQUE,
+    category VARCHAR NOT NULL,
     brand VARCHAR(255) NOT NULL,
     model VARCHAR(255) NOT NULL,
     price DECIMAL(10, 2) NOT NULL,
     stock_quantity INT NOT NULL,
     is_available BOOLEAN NOT NULL,
-    created_at TIMESTAMP,
-    updated_at TIMESTAMP
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP,
+    deleted_at TIMESTAMP
 );
 
 CREATE TABLE orders (
@@ -27,7 +30,9 @@ CREATE TABLE orders (
     invoice_number VARCHAR(255),
     special_instructions TEXT,
     shipping_cost DOUBLE PRECISION,
-    insurance_information VARCHAR(255)
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP
 );
 
 CREATE TABLE order_details (
@@ -36,7 +41,10 @@ CREATE TABLE order_details (
     product_id UUID NOT NULL,
     quantity INT NOT NULL,
     FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE,
-    FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE
+    FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP
 );
 
 CREATE TABLE customers (
@@ -47,5 +55,5 @@ CREATE TABLE customers (
     address TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMP DEFAULT '1970-01-01 00:00:00'
+    deleted_at TIMESTAMP
 );
