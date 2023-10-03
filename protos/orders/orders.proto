@@ -67,7 +67,7 @@ service OrderService {
     rpc CreateOrder(CreateOrderRequest) returns (CreateOrderResponse);
 
     // Get details of an order
-    rpc GetOrder(GetOrderRequest) returns (GetOrderResponse);
+    rpc GetOrderById(GetOrderRequest) returns (GetOrderResponse);
 
     // Update an order
     rpc UpdateOrder(UpdateOrderRequest) returns (UpdateOrderResponse);
@@ -76,29 +76,38 @@ service OrderService {
     rpc DeleteOrder(DeleteOrderRequest) returns (DeleteOrderResponse);
 
     // Get orders by customer ID
-    rpc GetOrdersByCustomerId(GetOrdersByCustomerIdRequest) returns (GetOrdersByCustomerIdResponse);
+    rpc ListOrdersByCustomerId(ListOrdersByCustomerIdRequest) returns (ListOrdersByCustomerIdResponse);
 
     // Get orders by product ID
-    rpc GetOrdersByProductId(GetOrdersByProductIdRequest) returns (GetOrdersByProductIdResponse);
+    rpc ListOrdersByProductId(ListOrdersByProductIdRequest) returns (ListOrdersByProductIdResponse);
 
     // Get order details by ID
     rpc GetOrderDetailsById (GetOrderDetailByIdRequest) returns(GetOrderDetailByIdResponse);
 
     // Update order details
-    rpc UpdateOrderDetails (GetOrderDetailByIdRequest) returns(GetOrderDetailByIdResponse);
+    rpc UpdateOrderDetails (GetOrderDetailByIdRequest) returns(UpdateOrderDetailsResponse);
 
     // Get Order details by UserID
-    rpc GetOrderDetailsByOrderId(GetOrderDetailsByOrderIdRequest) returns (GetOrderDetailsByOrderIdResponse);
+    rpc ListOrderDetailsByOrderId(ListOrderDetailsByOrderIdRequest) returns (ListOrderDetailsByOrderIdResponse);
 }
 
 // Request to get order details
-message GetOrderDetailsByOrderIdRequest {
-  string order_details_id = 1;
+message ListOrderDetailsByOrderIdRequest {
+  string order_id = 1;
+  // Optional. Page size for result pagination. Capped at an unspecified value.
+  int32 page_size = 2;
+  // Optional. Page token is the offset value. If it is empty it defaults to 0.
+  bytes page_token = 3;
+  // Optional. Specifies the ordering of results as a comma separated list of fields. By default, the sorting order is ascending. For descending order, append " desc" to a field name.
+  string order_by = 4;
 }
 
 // Request to get order details
-message GetOrderDetailsByOrderIdResponse {
+message ListOrderDetailsByOrderIdResponse {
   repeated OrderDetails order_details = 1;
+  // Maybe. Is present when there is a next page of results for the request.
+  // To get the next page, call the request with `page_token` field updated to this value.
+  int32 next_page_token=2;
 }
 
 // Request to get order details
@@ -113,8 +122,9 @@ message GetOrderDetailByIdResponse {
 
 // Request to update order details
 message UpdateOrderDetailsRequest {
-  OrderDetails order_details = 2;
-  google.protobuf.FieldMask update_mask = 3;
+  OrderDetails order_details = 1;
+
+  google.protobuf.FieldMask update_mask = 2;
 }
 
 // Response after updating order details
@@ -168,22 +178,40 @@ message DeleteOrderResponse {
 }
 
 // Request to get orders by customer ID
-message GetOrdersByCustomerIdRequest {
+message ListOrdersByCustomerIdRequest {
     string customer_id = 1;
+
+    int32 page_size = 2;
+    // Optional. The filter to apply to list results. Example: `email="email"`.
+    bytes page_token = 3;
+    // Optional. Specifies the ordering of results as a comma separated list of fields. By default, the sorting order is ascending. For descending order, append " desc" to a field name.
+    string order_by = 4;
 }
 
 // Response after getting orders by customer ID
-message GetOrdersByCustomerIdResponse {
+message ListOrdersByCustomerIdResponse {
     repeated Order orders = 1;
+    // Maybe. Is present when there is a next page of results for the request.
+    // To get the next page, call the request with `page_token` field updated to this value.
+    int32 next_page_token=2;
 }
 
 // Request to get orders by product ID
-message GetOrdersByProductIdRequest {
+message ListOrdersByProductIdRequest {
     string product_id = 1;
+    // Optional. Page size for result pagination. Capped at an unspecified value.
+    int32 page_size = 2;
+    // Optional. Page token is the offset value. If it is empty it defaults to 0.
+    bytes page_token = 3;
+    // Optional. Specifies the ordering of results as a comma separated list of fields. By default, the sorting order is ascending. For descending order, append " desc" to a field name.
+    string order_by = 4;
 }
 
 // Response after getting orders by product ID
-message GetOrdersByProductIdResponse {
+message ListOrdersByProductIdResponse {
     repeated Order orders = 1;
     repeated OrderDetails order_details = 2;
+    // Maybe. Is present when there is a next page of results for the request.
+    // To get the next page, call the request with `page_token` field updated to this value.
+    int32 next_page_token=3;
 }

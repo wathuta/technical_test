@@ -21,21 +21,21 @@ type OrderServiceClient interface {
 	// Create a new order
 	CreateOrder(ctx context.Context, in *CreateOrderRequest, opts ...grpc.CallOption) (*CreateOrderResponse, error)
 	// Get details of an order
-	GetOrder(ctx context.Context, in *GetOrderRequest, opts ...grpc.CallOption) (*GetOrderResponse, error)
+	GetOrderById(ctx context.Context, in *GetOrderRequest, opts ...grpc.CallOption) (*GetOrderResponse, error)
 	// Update an order
 	UpdateOrder(ctx context.Context, in *UpdateOrderRequest, opts ...grpc.CallOption) (*UpdateOrderResponse, error)
 	// Delete an order
 	DeleteOrder(ctx context.Context, in *DeleteOrderRequest, opts ...grpc.CallOption) (*DeleteOrderResponse, error)
 	// Get orders by customer ID
-	GetOrdersByCustomerId(ctx context.Context, in *GetOrdersByCustomerIdRequest, opts ...grpc.CallOption) (*GetOrdersByCustomerIdResponse, error)
+	ListOrdersByCustomerId(ctx context.Context, in *ListOrdersByCustomerIdRequest, opts ...grpc.CallOption) (*ListOrdersByCustomerIdResponse, error)
 	// Get orders by product ID
-	GetOrdersByProductId(ctx context.Context, in *GetOrdersByProductIdRequest, opts ...grpc.CallOption) (*GetOrdersByProductIdResponse, error)
+	ListOrdersByProductId(ctx context.Context, in *ListOrdersByProductIdRequest, opts ...grpc.CallOption) (*ListOrdersByProductIdResponse, error)
 	// Get order details by ID
 	GetOrderDetailsById(ctx context.Context, in *GetOrderDetailByIdRequest, opts ...grpc.CallOption) (*GetOrderDetailByIdResponse, error)
 	// Update order details
-	UpdateOrderDetails(ctx context.Context, in *GetOrderDetailByIdRequest, opts ...grpc.CallOption) (*GetOrderDetailByIdResponse, error)
+	UpdateOrderDetails(ctx context.Context, in *GetOrderDetailByIdRequest, opts ...grpc.CallOption) (*UpdateOrderDetailsResponse, error)
 	// Get Order details by UserID
-	GetOrderDetailsByOrderId(ctx context.Context, in *GetOrderDetailsByOrderIdRequest, opts ...grpc.CallOption) (*GetOrderDetailsByOrderIdResponse, error)
+	ListOrderDetailsByOrderId(ctx context.Context, in *ListOrderDetailsByOrderIdRequest, opts ...grpc.CallOption) (*ListOrderDetailsByOrderIdResponse, error)
 }
 
 type orderServiceClient struct {
@@ -55,9 +55,9 @@ func (c *orderServiceClient) CreateOrder(ctx context.Context, in *CreateOrderReq
 	return out, nil
 }
 
-func (c *orderServiceClient) GetOrder(ctx context.Context, in *GetOrderRequest, opts ...grpc.CallOption) (*GetOrderResponse, error) {
+func (c *orderServiceClient) GetOrderById(ctx context.Context, in *GetOrderRequest, opts ...grpc.CallOption) (*GetOrderResponse, error) {
 	out := new(GetOrderResponse)
-	err := c.cc.Invoke(ctx, "/orders.OrderService/GetOrder", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/orders.OrderService/GetOrderById", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -82,18 +82,18 @@ func (c *orderServiceClient) DeleteOrder(ctx context.Context, in *DeleteOrderReq
 	return out, nil
 }
 
-func (c *orderServiceClient) GetOrdersByCustomerId(ctx context.Context, in *GetOrdersByCustomerIdRequest, opts ...grpc.CallOption) (*GetOrdersByCustomerIdResponse, error) {
-	out := new(GetOrdersByCustomerIdResponse)
-	err := c.cc.Invoke(ctx, "/orders.OrderService/GetOrdersByCustomerId", in, out, opts...)
+func (c *orderServiceClient) ListOrdersByCustomerId(ctx context.Context, in *ListOrdersByCustomerIdRequest, opts ...grpc.CallOption) (*ListOrdersByCustomerIdResponse, error) {
+	out := new(ListOrdersByCustomerIdResponse)
+	err := c.cc.Invoke(ctx, "/orders.OrderService/ListOrdersByCustomerId", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *orderServiceClient) GetOrdersByProductId(ctx context.Context, in *GetOrdersByProductIdRequest, opts ...grpc.CallOption) (*GetOrdersByProductIdResponse, error) {
-	out := new(GetOrdersByProductIdResponse)
-	err := c.cc.Invoke(ctx, "/orders.OrderService/GetOrdersByProductId", in, out, opts...)
+func (c *orderServiceClient) ListOrdersByProductId(ctx context.Context, in *ListOrdersByProductIdRequest, opts ...grpc.CallOption) (*ListOrdersByProductIdResponse, error) {
+	out := new(ListOrdersByProductIdResponse)
+	err := c.cc.Invoke(ctx, "/orders.OrderService/ListOrdersByProductId", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -109,8 +109,8 @@ func (c *orderServiceClient) GetOrderDetailsById(ctx context.Context, in *GetOrd
 	return out, nil
 }
 
-func (c *orderServiceClient) UpdateOrderDetails(ctx context.Context, in *GetOrderDetailByIdRequest, opts ...grpc.CallOption) (*GetOrderDetailByIdResponse, error) {
-	out := new(GetOrderDetailByIdResponse)
+func (c *orderServiceClient) UpdateOrderDetails(ctx context.Context, in *GetOrderDetailByIdRequest, opts ...grpc.CallOption) (*UpdateOrderDetailsResponse, error) {
+	out := new(UpdateOrderDetailsResponse)
 	err := c.cc.Invoke(ctx, "/orders.OrderService/UpdateOrderDetails", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -118,9 +118,9 @@ func (c *orderServiceClient) UpdateOrderDetails(ctx context.Context, in *GetOrde
 	return out, nil
 }
 
-func (c *orderServiceClient) GetOrderDetailsByOrderId(ctx context.Context, in *GetOrderDetailsByOrderIdRequest, opts ...grpc.CallOption) (*GetOrderDetailsByOrderIdResponse, error) {
-	out := new(GetOrderDetailsByOrderIdResponse)
-	err := c.cc.Invoke(ctx, "/orders.OrderService/GetOrderDetailsByOrderId", in, out, opts...)
+func (c *orderServiceClient) ListOrderDetailsByOrderId(ctx context.Context, in *ListOrderDetailsByOrderIdRequest, opts ...grpc.CallOption) (*ListOrderDetailsByOrderIdResponse, error) {
+	out := new(ListOrderDetailsByOrderIdResponse)
+	err := c.cc.Invoke(ctx, "/orders.OrderService/ListOrderDetailsByOrderId", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -134,21 +134,21 @@ type OrderServiceServer interface {
 	// Create a new order
 	CreateOrder(context.Context, *CreateOrderRequest) (*CreateOrderResponse, error)
 	// Get details of an order
-	GetOrder(context.Context, *GetOrderRequest) (*GetOrderResponse, error)
+	GetOrderById(context.Context, *GetOrderRequest) (*GetOrderResponse, error)
 	// Update an order
 	UpdateOrder(context.Context, *UpdateOrderRequest) (*UpdateOrderResponse, error)
 	// Delete an order
 	DeleteOrder(context.Context, *DeleteOrderRequest) (*DeleteOrderResponse, error)
 	// Get orders by customer ID
-	GetOrdersByCustomerId(context.Context, *GetOrdersByCustomerIdRequest) (*GetOrdersByCustomerIdResponse, error)
+	ListOrdersByCustomerId(context.Context, *ListOrdersByCustomerIdRequest) (*ListOrdersByCustomerIdResponse, error)
 	// Get orders by product ID
-	GetOrdersByProductId(context.Context, *GetOrdersByProductIdRequest) (*GetOrdersByProductIdResponse, error)
+	ListOrdersByProductId(context.Context, *ListOrdersByProductIdRequest) (*ListOrdersByProductIdResponse, error)
 	// Get order details by ID
 	GetOrderDetailsById(context.Context, *GetOrderDetailByIdRequest) (*GetOrderDetailByIdResponse, error)
 	// Update order details
-	UpdateOrderDetails(context.Context, *GetOrderDetailByIdRequest) (*GetOrderDetailByIdResponse, error)
+	UpdateOrderDetails(context.Context, *GetOrderDetailByIdRequest) (*UpdateOrderDetailsResponse, error)
 	// Get Order details by UserID
-	GetOrderDetailsByOrderId(context.Context, *GetOrderDetailsByOrderIdRequest) (*GetOrderDetailsByOrderIdResponse, error)
+	ListOrderDetailsByOrderId(context.Context, *ListOrderDetailsByOrderIdRequest) (*ListOrderDetailsByOrderIdResponse, error)
 	mustEmbedUnimplementedOrderServiceServer()
 }
 
@@ -159,8 +159,8 @@ type UnimplementedOrderServiceServer struct {
 func (UnimplementedOrderServiceServer) CreateOrder(context.Context, *CreateOrderRequest) (*CreateOrderResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateOrder not implemented")
 }
-func (UnimplementedOrderServiceServer) GetOrder(context.Context, *GetOrderRequest) (*GetOrderResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetOrder not implemented")
+func (UnimplementedOrderServiceServer) GetOrderById(context.Context, *GetOrderRequest) (*GetOrderResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetOrderById not implemented")
 }
 func (UnimplementedOrderServiceServer) UpdateOrder(context.Context, *UpdateOrderRequest) (*UpdateOrderResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateOrder not implemented")
@@ -168,20 +168,20 @@ func (UnimplementedOrderServiceServer) UpdateOrder(context.Context, *UpdateOrder
 func (UnimplementedOrderServiceServer) DeleteOrder(context.Context, *DeleteOrderRequest) (*DeleteOrderResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteOrder not implemented")
 }
-func (UnimplementedOrderServiceServer) GetOrdersByCustomerId(context.Context, *GetOrdersByCustomerIdRequest) (*GetOrdersByCustomerIdResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetOrdersByCustomerId not implemented")
+func (UnimplementedOrderServiceServer) ListOrdersByCustomerId(context.Context, *ListOrdersByCustomerIdRequest) (*ListOrdersByCustomerIdResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListOrdersByCustomerId not implemented")
 }
-func (UnimplementedOrderServiceServer) GetOrdersByProductId(context.Context, *GetOrdersByProductIdRequest) (*GetOrdersByProductIdResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetOrdersByProductId not implemented")
+func (UnimplementedOrderServiceServer) ListOrdersByProductId(context.Context, *ListOrdersByProductIdRequest) (*ListOrdersByProductIdResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListOrdersByProductId not implemented")
 }
 func (UnimplementedOrderServiceServer) GetOrderDetailsById(context.Context, *GetOrderDetailByIdRequest) (*GetOrderDetailByIdResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetOrderDetailsById not implemented")
 }
-func (UnimplementedOrderServiceServer) UpdateOrderDetails(context.Context, *GetOrderDetailByIdRequest) (*GetOrderDetailByIdResponse, error) {
+func (UnimplementedOrderServiceServer) UpdateOrderDetails(context.Context, *GetOrderDetailByIdRequest) (*UpdateOrderDetailsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateOrderDetails not implemented")
 }
-func (UnimplementedOrderServiceServer) GetOrderDetailsByOrderId(context.Context, *GetOrderDetailsByOrderIdRequest) (*GetOrderDetailsByOrderIdResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetOrderDetailsByOrderId not implemented")
+func (UnimplementedOrderServiceServer) ListOrderDetailsByOrderId(context.Context, *ListOrderDetailsByOrderIdRequest) (*ListOrderDetailsByOrderIdResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListOrderDetailsByOrderId not implemented")
 }
 func (UnimplementedOrderServiceServer) mustEmbedUnimplementedOrderServiceServer() {}
 
@@ -214,20 +214,20 @@ func _OrderService_CreateOrder_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
-func _OrderService_GetOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _OrderService_GetOrderById_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetOrderRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(OrderServiceServer).GetOrder(ctx, in)
+		return srv.(OrderServiceServer).GetOrderById(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/orders.OrderService/GetOrder",
+		FullMethod: "/orders.OrderService/GetOrderById",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(OrderServiceServer).GetOrder(ctx, req.(*GetOrderRequest))
+		return srv.(OrderServiceServer).GetOrderById(ctx, req.(*GetOrderRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -268,38 +268,38 @@ func _OrderService_DeleteOrder_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
-func _OrderService_GetOrdersByCustomerId_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetOrdersByCustomerIdRequest)
+func _OrderService_ListOrdersByCustomerId_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListOrdersByCustomerIdRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(OrderServiceServer).GetOrdersByCustomerId(ctx, in)
+		return srv.(OrderServiceServer).ListOrdersByCustomerId(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/orders.OrderService/GetOrdersByCustomerId",
+		FullMethod: "/orders.OrderService/ListOrdersByCustomerId",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(OrderServiceServer).GetOrdersByCustomerId(ctx, req.(*GetOrdersByCustomerIdRequest))
+		return srv.(OrderServiceServer).ListOrdersByCustomerId(ctx, req.(*ListOrdersByCustomerIdRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _OrderService_GetOrdersByProductId_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetOrdersByProductIdRequest)
+func _OrderService_ListOrdersByProductId_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListOrdersByProductIdRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(OrderServiceServer).GetOrdersByProductId(ctx, in)
+		return srv.(OrderServiceServer).ListOrdersByProductId(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/orders.OrderService/GetOrdersByProductId",
+		FullMethod: "/orders.OrderService/ListOrdersByProductId",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(OrderServiceServer).GetOrdersByProductId(ctx, req.(*GetOrdersByProductIdRequest))
+		return srv.(OrderServiceServer).ListOrdersByProductId(ctx, req.(*ListOrdersByProductIdRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -340,20 +340,20 @@ func _OrderService_UpdateOrderDetails_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
-func _OrderService_GetOrderDetailsByOrderId_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetOrderDetailsByOrderIdRequest)
+func _OrderService_ListOrderDetailsByOrderId_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListOrderDetailsByOrderIdRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(OrderServiceServer).GetOrderDetailsByOrderId(ctx, in)
+		return srv.(OrderServiceServer).ListOrderDetailsByOrderId(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/orders.OrderService/GetOrderDetailsByOrderId",
+		FullMethod: "/orders.OrderService/ListOrderDetailsByOrderId",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(OrderServiceServer).GetOrderDetailsByOrderId(ctx, req.(*GetOrderDetailsByOrderIdRequest))
+		return srv.(OrderServiceServer).ListOrderDetailsByOrderId(ctx, req.(*ListOrderDetailsByOrderIdRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -370,8 +370,8 @@ var OrderService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _OrderService_CreateOrder_Handler,
 		},
 		{
-			MethodName: "GetOrder",
-			Handler:    _OrderService_GetOrder_Handler,
+			MethodName: "GetOrderById",
+			Handler:    _OrderService_GetOrderById_Handler,
 		},
 		{
 			MethodName: "UpdateOrder",
@@ -382,12 +382,12 @@ var OrderService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _OrderService_DeleteOrder_Handler,
 		},
 		{
-			MethodName: "GetOrdersByCustomerId",
-			Handler:    _OrderService_GetOrdersByCustomerId_Handler,
+			MethodName: "ListOrdersByCustomerId",
+			Handler:    _OrderService_ListOrdersByCustomerId_Handler,
 		},
 		{
-			MethodName: "GetOrdersByProductId",
-			Handler:    _OrderService_GetOrdersByProductId_Handler,
+			MethodName: "ListOrdersByProductId",
+			Handler:    _OrderService_ListOrdersByProductId_Handler,
 		},
 		{
 			MethodName: "GetOrderDetailsById",
@@ -398,8 +398,8 @@ var OrderService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _OrderService_UpdateOrderDetails_Handler,
 		},
 		{
-			MethodName: "GetOrderDetailsByOrderId",
-			Handler:    _OrderService_GetOrderDetailsByOrderId_Handler,
+			MethodName: "ListOrderDetailsByOrderId",
+			Handler:    _OrderService_ListOrderDetailsByOrderId_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
