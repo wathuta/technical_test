@@ -62,13 +62,7 @@ message GetProductByIdResponse {
 
 // Request message for updating a product
 message UpdateProductRequest {
-  string product_id = 1;
-  string name = 2;
-  string sku =3;
-  ProductCategory category = 4;
-  ProductAttributes attributes = 5;
-  int32 stock_quantity = 6;
-  bool is_available = 7;
+  Product product=1;
 
   google.protobuf.FieldMask update_mask = 8;
 }
