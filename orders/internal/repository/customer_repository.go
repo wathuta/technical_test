@@ -47,86 +47,77 @@ func (r *repository) GetCustomerById(ctx context.Context, customerID string) (*m
 
 }
 func (r *repository) UpdateCustomerFields(ctx context.Context, customerID string, updateFields map[string]interface{}) (*model.Customer, error) {
-	// Check if there are fields to update
-	if len(updateFields) == 0 {
-		return nil, nil // Nothing to update
+	tx, err := r.connection.BeginTxx(ctx, nil)
+	if err != nil {
+		return nil, err
 	}
+	defer tx.Rollback()
 
-	// Build the SQL query to update the customer
+	// Prepare the UPDATE statement
 	query := "UPDATE customers SET "
-	params := make(map[string]interface{})
+	namedArgs := make(map[string]interface{})
 
-	// Generate the SET clause for each field to update
+	// Build the SET clause for each field in the updateFields map
 	setClauses := []string{}
-	i := 1
 	for field, value := range updateFields {
-		setClauses = append(setClauses, field+"=:"+field) // Remove the additional colons and strconv.Itoa(i)
-		params[field] = value
-		i++
+		setClauses = append(setClauses, field+"=:"+field) // Use named placeholders
+		namedArgs[field] = value
 	}
+	query += strings.Join(setClauses, ",") + " WHERE customer_id = :customer_id"
+	namedArgs["customer_id"] = customerID
 
-	query += strings.Join(setClauses, ", ") + " WHERE customer_id=:customer_id"
-	params["customer_id"] = customerID
-	// Execute the SQL query and return the customer based on updated fields
-	_, err := r.connection.NamedExecContext(ctx, query, params)
+	// Execute the UPDATE statement
+	_, err = tx.NamedExec(query, namedArgs)
 	if err != nil {
 		return nil, err
 	}
 
-	// Construct the updated customer based on the provided fields
-	updatedCustomer := &model.Customer{
-		CustomerID: customerID,
+	// Commit the transaction
+	err = tx.Commit()
+	if err != nil {
+		return nil, err
 	}
 
-	// Update the customer fields based on the updateFields map
-	if name, ok := updateFields["name"].(string); ok {
-		updatedCustomer.Name = name
-	}
-	if email, ok := updateFields["email"].(string); ok {
-		updatedCustomer.Email = email
-	}
-	if phoneNumber, ok := updateFields["phone_number"].(string); ok {
-		updatedCustomer.PhoneNumber = phoneNumber
-	}
-	if address, ok := updateFields["address"].(string); ok {
-		updatedCustomer.Address = address
+	// Return the updated customer (you may need to fetch it from the database again)
+	updatedCustomer, err := r.GetCustomerById(ctx, customerID)
+	if err != nil {
+		return nil, err
 	}
 
-	// Return the updated customer
 	return updatedCustomer, nil
 }
 
 func (r *repository) DeleteCustomer(ctx context.Context, customerID string) (*model.Customer, error) {
-    // Start a transaction because this delete operation is not atomic. This ensures that all parts of the queries are a success before making changes
-    // if one part fails then all the changes are not made
+	// Start a transaction because this delete operation is not atomic. This ensures that all parts of the queries are a success before making changes
+	// if one part fails then all the changes are not made
 	tx, err := r.connection.BeginTx(ctx, nil)
-    if err != nil {
-        return nil, err
-    }
-    defer tx.Rollback() // Rollback if there's an error
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback() // Rollback if there's an error
 
-    query := `
+	query := `
         DELETE FROM customers
         WHERE customer_id = $1
         RETURNING *
     `
 
-    var customer model.Customer
+	var customer model.Customer
 
-    // Use the transaction to execute the query and scan the result
-    err = tx.QueryRowContext(ctx, query, customerID).
-        Scan(&customer.CustomerID, &customer.Name, &customer.Email, &customer.PhoneNumber, &customer.Address, &customer.CreatedAt, &customer.UpdatedAt, &customer.DeletedAt)
+	// Use the transaction to execute the query and scan the result
+	err = tx.QueryRowContext(ctx, query, customerID).
+		Scan(&customer.CustomerID, &customer.Name, &customer.Email, &customer.PhoneNumber, &customer.Address, &customer.CreatedAt, &customer.UpdatedAt, &customer.DeletedAt)
 
-    if err != nil {
-        // Rollback the transaction in case of an error
-        tx.Rollback()
-        return nil, err
-    }
+	if err != nil {
+		// Rollback the transaction in case of an error
+		tx.Rollback()
+		return nil, err
+	}
 
-    // Commit the transaction
-    if err := tx.Commit(); err != nil {
-        return nil, err
-    }
+	// Commit the transaction
+	if err := tx.Commit(); err != nil {
+		return nil, err
+	}
 
-    return &customer, nil
+	return &customer, nil
 }

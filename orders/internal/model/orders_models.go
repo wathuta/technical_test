@@ -1,6 +1,8 @@
 package model
 
 import (
+	"encoding/json"
+	"errors"
 	"time"
 
 	orderspb "github.com/wathuta/technical_test/protos_gen/orders"
@@ -9,11 +11,11 @@ import (
 
 // Address represents the Address message.
 type Address struct {
-	Street     string `json:"street"`
-	City       string `json:"city"`
-	State      string `json:"state"`
-	PostalCode string `json:"postal_code"`
-	Country    string `json:"country"`
+	Street     string `json:"street" db:"street"`
+	City       string `json:"city" db:"city"`
+	State      string `json:"state" db:"state"`
+	PostalCode string `json:"postal_code" db:"postal_code"`
+	Country    string `json:"country" db:"country"`
 }
 
 // OrderStatus represents the possible order statuses.
@@ -143,4 +145,51 @@ func (od *OrderDetails) Proto() *orderspb.OrderDetails {
 		UpdatedAt:       timestamppb.New(od.UpdatedAt),
 		DeletedAt:       timestamppb.New(od.DeletedAt),
 	}
+}
+
+func (a *Address) Scan(value interface{}) error {
+	b, ok := value.([]byte)
+	if !ok {
+		return errors.New("type assertion to []byte failed")
+	}
+
+	return json.Unmarshal(b, &a)
+}
+
+func UpdateOrderMaping(updateFields []string, order Order) map[string]interface{} {
+	updateValues := make(map[string]interface{})
+	for _, updateField := range updateFields {
+		if updateField == "pickup_address" {
+			updateValues[updateField] = order.PickupAddress
+		}
+		if updateField == "delivery_address" {
+			updateValues[updateField] = order.DeliveryAddress
+		}
+		if updateField == "shipping_method" {
+			updateValues[updateField] = order.ShippingMethod
+		}
+
+		if updateField == "order_status" {
+			updateValues[updateField] = order.OrderStatus
+		}
+		if updateField == "scheduled_pickup_datetime" {
+			updateValues[updateField] = order.ScheduledPickupDatetime
+		}
+		if updateField == "scheduled_delivery_datetime" {
+			updateValues[updateField] = order.ScheduledDeliveryDatetime
+		}
+		if updateField == "payment_method" {
+			updateValues[updateField] = order.PaymentMethod
+		}
+		if updateField == "invoice_number" {
+			updateValues[updateField] = order.InvoiceNumber
+		}
+		if updateField == "special_instructions" {
+			updateValues[updateField] = order.SpecialInstructions
+		}
+		if updateField == "shipping_cost" {
+			updateValues[updateField] = order.ShippingCost
+		}
+	}
+	return updateValues
 }

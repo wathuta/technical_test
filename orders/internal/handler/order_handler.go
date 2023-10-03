@@ -3,18 +3,16 @@ package handler
 import (
 	"context"
 	"database/sql"
-	"fmt"
-	"reflect"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/wathuta/technical_test/orders/internal/common"
+	"github.com/wathuta/technical_test/orders/internal/common/fieldmask"
 	"github.com/wathuta/technical_test/orders/internal/model"
 	orderspb "github.com/wathuta/technical_test/protos_gen/orders"
 	"golang.org/x/exp/slog"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 // Create a new order
@@ -29,14 +27,7 @@ func (h *Handler) CreateOrder(ctx context.Context, req *orderspb.CreateOrderRequ
 	resource.OrderID = uuid.New().String()
 	resource.CreatedAt = time.Now()
 	resource.DeletedAt = time.Time{}
-	val := reflect.ValueOf(*resource)
-	for i := 0; i < val.NumField(); i++ {
-		field := val.Type().Field(i)
-		fieldName := field.Name
-		fieldValue := val.Field(i).Interface()
-		fmt.Printf("%s:\n%v\n", fieldName, fieldValue)
-		fmt.Println()
-	}
+
 	// validate request
 	if err := common.ValidateGeneric(resource); err != nil {
 		slog.Error("failed to validate product resource", "error", err)
@@ -94,7 +85,7 @@ func (h *Handler) CreateOrder(ctx context.Context, req *orderspb.CreateOrderRequ
 }
 
 // Get details of an order
-func (h *Handler) GetOrder(ctx context.Context, req *orderspb.GetOrderRequest) (*orderspb.GetOrderResponse, error) {
+func (h *Handler) GetOrderById(ctx context.Context, req *orderspb.GetOrderRequest) (*orderspb.GetOrderResponse, error) {
 	if req == nil || len(req.OrderId) == 0 {
 		slog.Error("invalid request", "error", errResourceRequired)
 		return nil, errResourceRequired
@@ -125,84 +116,31 @@ func (h *Handler) GetOrder(ctx context.Context, req *orderspb.GetOrderRequest) (
 
 // Update an order
 func (h *Handler) UpdateOrder(ctx context.Context, req *orderspb.UpdateOrderRequest) (*orderspb.UpdateOrderResponse, error) {
-	if req == nil || len(req.Order.OrderId) == 0 {
+	if req == nil || req.Order == nil {
 		slog.Error("invalid request", "error", errResourceRequired)
 		return nil, errResourceRequired
 	}
 	slog.Debug("update order", "order_id", req.Order.OrderId)
 
-	updateFields := make(map[string]interface{})
-	// Check the field mask for each field and add it to the updateFields map
-	// Check if req.UpdateMask is null or empty
-	if req.UpdateMask == nil || len(req.UpdateMask.Paths) == 0 {
-		// If no field mask is provided, assume all fields should be updated
-		updateFields["customer_id"] = req.Order.CustomerId
-		updateFields["pickup_address"] = req.Order.PickupAddress
-		updateFields["delivery_address"] = req.Order.DeliveryAddress
-		updateFields["shipping_method"] = req.Order.ShippingMethod
-		updateFields["order_status"] = req.Order.OrderStatus
-		updateFields["scheduled_pickup_datetime"] = req.Order.ScheduledPickupDatetime
-		updateFields["scheduled_delivery_datetime"] = req.Order.ScheduledDeliveryDatetime
-		updateFields["tracking_number"] = req.Order.TrackingNumber
-		updateFields["payment_method"] = req.Order.PaymentMethod
-		updateFields["invoice_number"] = req.Order.InvoiceNumber
-		updateFields["special_instructions"] = req.Order.SpecialInstructions
-		updateFields["shipping_cost"] = req.Order.ShippingCost
-		updateFields["insurance_information"] = req.Order.ScheduledDeliveryDatetime
-		// Add other fields as needed
-	} else {
-		// If a field mask is provided, update only the specified fields
-		mask := req.UpdateMask.Paths
-		if common.IsInMask("customer_id", mask) && req.Order.CustomerId != "" {
-			updateFields["customer_id"] = req.Order.CustomerId
-		}
-		if common.IsInMask("pickup_address", mask) && req.Order.PickupAddress != nil {
-			updateFields["pickup_address"] = req.Order.PickupAddress
-		}
-		if common.IsInMask("delivery_address", mask) && req.Order.DeliveryAddress != nil {
-			updateFields["delivery_address"] = req.Order.DeliveryAddress
-		}
-		if common.IsInMask("shipping_method", mask) && req.Order.ShippingMethod != "" {
-			updateFields["shipping_method"] = req.Order.ShippingMethod
-		}
-		if common.IsInMask("order_status", mask) {
-			updateFields["order_status"] = req.Order.OrderStatus
-		}
-		if common.IsInMask("scheduled_pickup_datetime", mask) {
-			updateFields["scheduled_pickup_datetime"] = req.Order.ScheduledPickupDatetime
-		}
-		if common.IsInMask("scheduled_delivery_datetime", mask) && req.Order.ScheduledDeliveryDatetime != timestamppb.New(time.Time{}) {
-			updateFields["scheduled_delivery_datetime"] = req.Order.ScheduledDeliveryDatetime
-		}
-		if common.IsInMask("tracking_number", mask) && req.Order.TrackingNumber != "" {
-			updateFields["tracking_number"] = req.Order.TrackingNumber
-		}
-		if common.IsInMask("payment_method", mask) {
-			updateFields["payment_method"] = req.Order.PaymentMethod
-		}
-		if common.IsInMask("invoice_number", mask) && req.Order.InvoiceNumber != "" {
-			updateFields["invoice_number"] = req.Order.InvoiceNumber
-		}
-		if common.IsInMask("special_instructions", mask) && req.Order.SpecialInstructions != "" {
-			updateFields["special_instructions"] = req.Order.SpecialInstructions
-		}
-		if common.IsInMask("shipping_cost", mask) {
-			updateFields["shipping_cost"] = req.Order.ShippingCost
-		}
-		// Add other fields as needed
+	mask, err := fieldmask.New(req.UpdateMask)
+	if err != nil {
+		slog.Error("invalid request inputs", "error", err)
+		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
+	mask.RemoveOutputOnly()
 
 	orderUUID, err := uuid.Parse(req.Order.OrderId)
 	if err != nil {
 		slog.Error("invalid order uuid value", "orderUUID", orderUUID, "error", err, req)
 		return nil, errBadRequest
 	}
+	order := model.OrderFromProto(req.Order)
+	updatedOrderDetails := model.UpdateOrderMaping(mask.Fields, *order)
 
-	// Check if there are no fields to update
-	if len(updateFields) == 0 {
+	// if fieldmask is empty perfom get
+	if len(mask.Fields) == 0 || len(updatedOrderDetails) == 0 {
 		slog.Debug("no fields to update")
-
-		order, err := h.repo.GetOrderById(ctx, req.Order.OrderId)
+		order, err = h.repo.GetOrderById(ctx, orderUUID.String())
 		if err != nil {
 			if err == sql.ErrNoRows {
 				slog.Error("order with the given id not found", "customer_id", orderUUID, "error", err)
@@ -211,11 +149,10 @@ func (h *Handler) UpdateOrder(ctx context.Context, req *orderspb.UpdateOrderRequ
 			slog.Error("failed to get order from db", "error", err)
 			return nil, errInternal
 		}
-
 		return &orderspb.UpdateOrderResponse{Order: order.Proto()}, nil
 	}
 
-	order, err := h.repo.UpdateOrder(ctx, orderUUID.String(), updateFields)
+	order, err = h.repo.UpdateOrder(ctx, orderUUID.String(), updatedOrderDetails)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			slog.Error("customer with the given id not found", "customer_id", orderUUID, "error", err)
@@ -254,11 +191,13 @@ func (h *Handler) DeleteOrder(ctx context.Context, req *orderspb.DeleteOrderRequ
 	}
 
 	slog.Debug("delete order successful")
-	return &orderspb.DeleteOrderResponse{}, nil
+	return &orderspb.DeleteOrderResponse{
+		Success: true,
+	}, nil
 }
 
 // Get orders by customer ID
-func (h *Handler) GetOrdersByCustomerId(ctx context.Context, req *orderspb.GetOrdersByCustomerIdRequest) (*orderspb.GetOrdersByCustomerIdResponse, error) {
+func (h *Handler) ListOrdersByCustomerId(ctx context.Context, req *orderspb.ListOrdersByCustomerIdRequest) (*orderspb.ListOrdersByCustomerIdResponse, error) {
 	if req == nil || len(req.CustomerId) == 0 {
 		slog.Error("invalid request", "error", errResourceRequired)
 		return nil, errResourceRequired
@@ -270,8 +209,10 @@ func (h *Handler) GetOrdersByCustomerId(ctx context.Context, req *orderspb.GetOr
 		slog.Error("invalid order uuid value", "error", err)
 		return nil, errBadRequest
 	}
+	pagesize := common.SetPageSize(int(req.PageSize), defaultPageSize, maxPageSize)
+	token := common.SetPageToken(int(req.PageToken))
 
-	orders, err := h.repo.GetOrdersByCustomerId(ctx, customerUUID.String())
+	orders, err := h.repo.GetOrdersByCustomerId(ctx, customerUUID.String(), pagesize, token)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			slog.Error("order with the given customer id not found", "customer_id", customerUUID, "error", err)
@@ -288,11 +229,11 @@ func (h *Handler) GetOrdersByCustomerId(ctx context.Context, req *orderspb.GetOr
 	}
 
 	slog.Debug("get orders by customer id successful")
-	return &orderspb.GetOrdersByCustomerIdResponse{Orders: returnOrders}, nil
+	return &orderspb.ListOrdersByCustomerIdResponse{Orders: returnOrders}, nil
 }
 
 // Get orders by product ID
-func (h *Handler) GetOrdersByProductId(ctx context.Context, req *orderspb.GetOrdersByProductIdRequest) (*orderspb.GetOrdersByProductIdResponse, error) {
+func (h *Handler) ListOrdersByProductId(ctx context.Context, req *orderspb.ListOrdersByProductIdRequest) (*orderspb.ListOrdersByProductIdResponse, error) {
 	if req == nil || len(req.ProductId) == 0 {
 		slog.Error("invalid request", "error", errResourceRequired)
 		return nil, errResourceRequired
@@ -304,8 +245,10 @@ func (h *Handler) GetOrdersByProductId(ctx context.Context, req *orderspb.GetOrd
 		slog.Error("invalid product uuid value", "error", err)
 		return nil, errBadRequest
 	}
+	pagesize := common.SetPageSize(int(req.PageSize), defaultPageSize, maxPageSize)
+	token := common.SetPageToken(int(req.PageToken))
 
-	orderDetails, err := h.repo.GetOrderDetailsByProductId(ctx, productUUID.String())
+	orderDetails, err := h.repo.GetOrderDetailsByProductId(ctx, productUUID.String(), pagesize, token)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			slog.Error("order details with the given id not found", "order_id", productUUID, "error", err)
@@ -333,7 +276,7 @@ func (h *Handler) GetOrdersByProductId(ctx context.Context, req *orderspb.GetOrd
 	}
 
 	slog.Debug("get order successful")
-	return &orderspb.GetOrdersByProductIdResponse{
+	return &orderspb.ListOrdersByProductIdResponse{
 		Orders:       returnOrders,
 		OrderDetails: returnOrderDetails,
 	}, nil
@@ -370,24 +313,26 @@ func (h *Handler) GetOrderDetailsById(ctx context.Context, req *orderspb.GetOrde
 }
 
 // Update order details by ID
-func (h *Handler) UpdateOrderDetails(ctx context.Context, req *orderspb.GetOrderDetailByIdRequest) (*orderspb.GetOrderDetailByIdResponse, error) {
-	return &orderspb.GetOrderDetailByIdResponse{}, nil
+func (h *Handler) UpdateOrderDetails(ctx context.Context, req *orderspb.UpdateOrderDetailsRequest) (*orderspb.UpdateOrderDetailsResponse, error) {
+	return &orderspb.UpdateOrderDetailsResponse{}, nil
 }
 
-func (h *Handler) GetOrderDetailsByOrderId(ctx context.Context, req *orderspb.GetOrderDetailsByOrderIdRequest) (*orderspb.GetOrderDetailsByOrderIdResponse, error) {
-	if req == nil || len(req.OrderDetailsId) == 0 {
+func (h *Handler) ListOrderDetailsByOrderId(ctx context.Context, req *orderspb.ListOrderDetailsByOrderIdRequest) (*orderspb.ListOrderDetailsByOrderIdResponse, error) {
+	if req == nil || len(req.OrderId) == 0 {
 		slog.Error("invalid request", "error", errResourceRequired)
 		return nil, errResourceRequired
 	}
-	slog.Debug("get order details by order id", "order_id", req.OrderDetailsId)
+	slog.Debug("get order details by order id", "order_id", req.OrderId)
 
-	orderUUID, err := uuid.Parse(req.OrderDetailsId)
+	orderUUID, err := uuid.Parse(req.OrderId)
 	if err != nil {
 		slog.Error("invalid order uuid value", "error", err)
 		return nil, errBadRequest
 	}
+	pagesize := common.SetPageSize(int(req.PageSize), defaultPageSize, maxPageSize)
+	token := common.SetPageToken(int(req.PageToken))
 
-	orderDetails, err := h.repo.GetOrderDetailsByOrderId(ctx, orderUUID.String())
+	orderDetails, err := h.repo.GetOrderDetailsByOrderId(ctx, orderUUID.String(), pagesize, token)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			slog.Error("order details with the given order id not found", "order_id", orderUUID, "error", err)
@@ -404,7 +349,7 @@ func (h *Handler) GetOrderDetailsByOrderId(ctx context.Context, req *orderspb.Ge
 	}
 
 	slog.Debug("get order details by order id successful")
-	return &orderspb.GetOrderDetailsByOrderIdResponse{
+	return &orderspb.ListOrderDetailsByOrderIdResponse{
 		OrderDetails: returnOrderDetails,
 	}, nil
 }

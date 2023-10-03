@@ -43,65 +43,44 @@ func (r *repository) GetProductById(ctx context.Context, productId string) (*mod
 }
 
 func (r *repository) UpdateProductFields(ctx context.Context, productID string, updateFields map[string]interface{}) (*model.Product, error) {
-	// Check if there are fields to update
-	if len(updateFields) == 0 {
-		return nil, nil // Nothing to update
+	// Start a SQL transaction
+	tx, err := r.connection.BeginTxx(ctx, nil)
+	if err != nil {
+		return nil, err
 	}
+	defer tx.Rollback()
 
-	// Build the SQL query to update the product
+	// Prepare the UPDATE statement
 	query := "UPDATE products SET "
-	params := make(map[string]interface{})
+	namedArgs := make(map[string]interface{})
 
-	// Generate the SET clause for each field to update
+	// Build the SET clause for each field in the updateFields map
 	setClauses := []string{}
-	i := 1
 	for field, value := range updateFields {
-		setClauses = append(setClauses, field+"=:"+field) // Remove the additional colons and strconv.Itoa(i)
-		params[field] = value
-		i++
+		setClauses = append(setClauses, field+"=:"+field) // Use named placeholders
+		namedArgs[field] = value
 	}
+	query += strings.Join(setClauses, ",") + " WHERE product_id = :product_id"
+	namedArgs["product_id"] = productID
 
-	query += strings.Join(setClauses, ", ") + " WHERE product_id=:product_id"
-	params["product_id"] = productID
-
-	// Execute the SQL query and return the product based on updated fields
-	_, err := r.connection.NamedExecContext(ctx, query, params)
+	// Execute the UPDATE statement
+	_, err = tx.NamedExec(query, namedArgs)
 	if err != nil {
 		return nil, err
 	}
 
-	// Construct the updated product based on the provided fields
-	updatedProduct := &model.Product{
-		ProductID: productID,
+	// Commit the transaction
+	err = tx.Commit()
+	if err != nil {
+		return nil, err
 	}
 
-	// Update the product fields based on the updateFields map
-	if name, ok := updateFields["name"].(string); ok {
-		updatedProduct.Name = name
-	}
-	if brand, ok := updateFields["brand"].(string); ok {
-		updatedProduct.Brand = brand
-	}
-	if model, ok := updateFields["model"].(string); ok {
-		updatedProduct.Model = model
-	}
-	if price, ok := updateFields["price"].(float64); ok {
-		updatedProduct.Price = price
-	}
-	if category, ok := updateFields["category"].(model.ProductCategory); ok {
-		updatedProduct.Category = category
-	}
-	if isAvailable, ok := updateFields["is_available"].(bool); ok {
-		updatedProduct.IsAvailable = isAvailable
-	}
-	if sku, ok := updateFields["sku"].(string); ok {
-		updatedProduct.Sku = sku
-	}
-	if stockQuantity, ok := updateFields["stock_quantity"].(int32); ok {
-		updatedProduct.StockQuantity = stockQuantity
+	// Return the updated product (you may need to fetch it from the database again)
+	updatedProduct, err := r.GetProductById(ctx, productID)
+	if err != nil {
+		return nil, err
 	}
 
-	// Return the updated product
 	return updatedProduct, nil
 }
 

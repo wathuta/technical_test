@@ -85,7 +85,7 @@ service OrderService {
     rpc GetOrderDetailsById (GetOrderDetailByIdRequest) returns(GetOrderDetailByIdResponse);
 
     // Update order details
-    rpc UpdateOrderDetails (GetOrderDetailByIdRequest) returns(UpdateOrderDetailsResponse);
+    rpc UpdateOrderDetails (UpdateOrderDetailsRequest) returns(UpdateOrderDetailsResponse);
 
     // Get Order details by UserID
     rpc ListOrderDetailsByOrderId(ListOrderDetailsByOrderIdRequest) returns (ListOrderDetailsByOrderIdResponse);

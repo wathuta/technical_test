@@ -19,13 +19,6 @@ type Customer struct {
 	// Add more fields as needed for customers.
 }
 
-type UpdateCustomer struct {
-	Name        string
-	Email       string `validate:"email"`
-	PhoneNumber string `validate:"e164"`
-	Address     string
-}
-
 func CustomerFromProto(e *customersPb.Customer) *Customer {
 	return &Customer{
 		Name:        e.Name,
@@ -47,21 +40,21 @@ func (c *Customer) Proto() *customersPb.Customer {
 	}
 }
 
-func UpdateCustomerFromProto(e *customersPb.UpdateCustomerRequest) *UpdateCustomer {
-	updatedCustomer := &UpdateCustomer{}
-
-	if e.Name != "" {
-		updatedCustomer.Name = e.Name
+func UpdateCustomerMapping(updateFields []string, customer Customer) map[string]interface{} {
+	updateValues := make(map[string]interface{})
+	for _, updateField := range updateFields {
+		if updateField == "name" {
+			updateValues[updateField] = customer.Name
+		}
+		if updateField == "email" {
+			updateValues[updateField] = customer.Email
+		}
+		if updateField == "phone_number" {
+			updateValues[updateField] = customer.PhoneNumber
+		}
+		if updateField == "address" {
+			updateValues[updateField] = customer.Address
+		}
 	}
-	if e.Email != "" {
-		updatedCustomer.Email = e.Email
-	}
-	if e.PhoneNumber != "" {
-		updatedCustomer.PhoneNumber = e.PhoneNumber
-	}
-	if e.Address != "" {
-		updatedCustomer.Address = e.Address
-	}
-
-	return updatedCustomer
+	return updateValues
 }

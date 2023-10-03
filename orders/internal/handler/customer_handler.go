@@ -7,6 +7,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/wathuta/technical_test/orders/internal/common"
+	"github.com/wathuta/technical_test/orders/internal/common/fieldmask"
 	"github.com/wathuta/technical_test/orders/internal/model"
 	customersPb "github.com/wathuta/technical_test/protos_gen/customers"
 	"golang.org/x/exp/slog"
@@ -66,51 +67,35 @@ func (h *Handler) GetCustomerById(ctx context.Context, req *customersPb.GetCusto
 	return &customersPb.GetCustomerByIdResponse{Customer: resource.Proto()}, nil
 }
 func (h *Handler) UpdateCustomer(ctx context.Context, req *customersPb.UpdateCustomerRequest) (*customersPb.UpdateCustomerResponse, error) {
-	if req == nil || len(req.CustomerId) == 0 {
+	if req == nil || req.Customer == nil {
 		slog.Error("invalid request", "error", errResourceRequired)
 		return nil, errResourceRequired
 	}
-	slog.Debug("update customer", "customer_id", req.CustomerId)
+	slog.Debug("update customer", "customer_id", req.Customer.CustomerId)
 
-	updateFields := make(map[string]interface{})
-	// Check the field mask for each field and add it to the updateFields map
-	// Check if req.UpdateMask is null or empty
-	if req.UpdateMask == nil || len(req.UpdateMask.Paths) == 0 {
-		// If no field mask is provided, assume all fields should be updated
-		updateFields["name"] = req.Name
-		updateFields["email"] = req.Email
-		updateFields["phone_number"] = req.PhoneNumber
-		updateFields["address"] = req.Address
-		// Add other fields as needed
-	} else {
-		// If a field mask is provided, update only the specified fields
-		mask := req.UpdateMask.Paths
-		if common.IsInMask("name", mask) && req.Name != "" {
-			updateFields["name"] = req.Name
-		}
-		if common.IsInMask("email", mask) && req.Email != "" {
-			updateFields["email"] = req.Email
-		}
-		if common.IsInMask("phone_number", mask) && req.PhoneNumber != "" {
-			updateFields["phone_number"] = req.PhoneNumber
-		}
-		if common.IsInMask("address", mask) && req.Address != "" {
-			updateFields["address"] = req.Address
-		}
-		// Add other fields as needed
+	// check the mask
+	mask, err := fieldmask.New(req.UpdateMask)
+	if err != nil {
+		slog.Error("invalid request inputs", "error", err)
+		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
+	mask.RemoveOutputOnly()
 
-	customerUUID, err := uuid.Parse(req.CustomerId)
+	// validate customer UUID
+	customerUUID, err := uuid.Parse(req.Customer.CustomerId)
 	if err != nil {
 		slog.Error("invalid customer uuid value", "customerUUID", customerUUID, "error", err, req)
 		return nil, errBadRequest
 	}
 
-	// Check if there are no fields to update
-	if len(updateFields) == 0 {
+	customer := model.CustomerFromProto(req.Customer)
+	updatedCustomerDetail := model.UpdateCustomerMapping(mask.Fields, *customer)
+
+	// if fieldmask is empty perfom get
+	if len(mask.Fields) == 0 || len(updatedCustomerDetail) == 0 {
 		slog.Debug("no fields to update")
 
-		resource, err := h.repo.GetCustomerById(ctx, req.CustomerId)
+		customer, err = h.repo.GetCustomerById(ctx, req.Customer.CustomerId)
 		if err != nil {
 			if err == sql.ErrNoRows {
 				slog.Error("customer with the given id not found", "customer_id", customerUUID, "error", err)
@@ -119,17 +104,13 @@ func (h *Handler) UpdateCustomer(ctx context.Context, req *customersPb.UpdateCus
 			slog.Error("failed to get customer from db", "error", err)
 			return nil, errInternal
 		}
+		slog.Debug("update customer successful")
+		return &customersPb.UpdateCustomerResponse{Customer: customer.Proto()}, nil
 
-		return &customersPb.UpdateCustomerResponse{Customer: resource.Proto()}, nil
 	}
 
-	updateCustomerModels := model.UpdateCustomerFromProto(req)
-	if err := common.ValidateGeneric(updateCustomerModels); err != nil {
-		slog.Error("failed to validate customer resource", "error", err)
-		return nil, status.Error(codes.InvalidArgument, err.Error())
-	}
-
-	resource, err := h.repo.UpdateCustomerFields(ctx, customerUUID.String(), updateFields)
+	// persist in db
+	customer, err = h.repo.UpdateCustomerFields(ctx, customerUUID.String(), updatedCustomerDetail)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			slog.Error("customer with the given id not found", "customer_id", customerUUID, "error", err)
@@ -140,7 +121,7 @@ func (h *Handler) UpdateCustomer(ctx context.Context, req *customersPb.UpdateCus
 	}
 
 	slog.Debug("update customer successful")
-	return &customersPb.UpdateCustomerResponse{Customer: resource.Proto()}, nil
+	return &customersPb.UpdateCustomerResponse{Customer: customer.Proto()}, nil
 }
 func (h *Handler) DeleteCustomer(ctx context.Context, req *customersPb.DeleteCustomerRequest) (*customersPb.DeleteCustomerResponse, error) {
 	if req == nil || len(req.CustomerId) == 0 {

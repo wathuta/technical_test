@@ -95,32 +95,35 @@ func (c *Product) Proto() *productspb.Product {
 		DeletedAt:     timestamppb.New(c.DeletedAt),
 	}
 }
-func UpdateProductToProto(e *productspb.UpdateProductRequest) *UpdateProductRequest {
-	updatedProduct := &UpdateProductRequest{}
+func UpdateProductMapping(updateFields []string, product Product) map[string]interface{} {
+	updatedProductValues := make(map[string]interface{})
 
-	if e.Name == "" {
-		updatedProduct.Name = e.Name
-	}
-	if e.Sku == "" {
-		updatedProduct.Sku = e.Sku
-	}
-	if e.ProductId == "" {
-		updatedProduct.ProductID = e.ProductId
-	}
-	if len((string(e.Category))) == 0 {
-		updatedProduct.Category = ProductCategory(e.Category.String())
-	}
-	if e.Attributes == nil {
-		updatedProduct.Brand = e.Attributes.Brand
-		updatedProduct.Model = e.Attributes.Model
-		updatedProduct.Price = e.Attributes.Price
-	}
-	if e.StockQuantity == 0 {
-		updatedProduct.StockQuantity = e.StockQuantity
-	}
-	if !e.IsAvailable {
-		updatedProduct.IsAvailable = e.IsAvailable
-	}
+	for _, updateField := range updateFields {
+		if updateField == "name" {
+			updatedProductValues[updateField] = product.Name
+		}
+		if updateField == "sku" {
+			updatedProductValues[updateField] = product.Sku
+		}
+		if updateField == "category" {
+			updatedProductValues[updateField] = product.Category
+		}
+		if updateField == "brand" {
+			updatedProductValues[updateField] = product.Brand
+		}
 
-	return updatedProduct
+		if updateField == "model" {
+			updatedProductValues[updateField] = product.Model
+		}
+		if updateField == "price" {
+			updatedProductValues[updateField] = product.Price
+		}
+		if updateField == "stock_quantity" {
+			updatedProductValues[updateField] = product.StockQuantity
+		}
+		if updateField == "is_available" {
+			updatedProductValues[updateField] = product.IsAvailable
+		}
+	}
+	return updatedProductValues
 }
