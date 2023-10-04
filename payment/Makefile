@@ -22,10 +22,8 @@ flush-db:
 
 show-db:
 	psql $(DATABASE_URL) -c "\dt+"
-	psql $(DATABASE_URL) -c "SELECT * FROM customers"
-	psql $(DATABASE_URL) -c "SELECT * FROM order_details"
-	psql $(DATABASE_URL) -c "SELECT * FROM orders"
-	psql $(DATABASE_URL) -c "SELECT * FROM products"
+	psql $(DATABASE_URL) -c "SELECT * FROM payments"
+
 gen-mocks: # generate mocks for all interfaces
 	mockery --all --dir ./internal --recursive  --outpkg mocks --output ./internal/mocks
 
