@@ -90,7 +90,7 @@ func (h *Handler) UpdateCustomer(ctx context.Context, req *customersPb.UpdateCus
 
 	customer := model.CustomerFromProto(req.Customer)
 	updatedCustomerDetail := model.UpdateCustomerMapping(mask.Fields, *customer)
-
+	updatedCustomerDetail["updated_at"] = time.Now()
 	// if fieldmask is empty perfom get
 	if len(mask.Fields) == 0 || len(updatedCustomerDetail) == 0 {
 		slog.Debug("no fields to update")
