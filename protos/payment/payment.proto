@@ -8,7 +8,7 @@ import "google/protobuf/timestamp.proto";
 option go_package = ".;payment";
 // Payment represents a payment made by a customer for an order.
 message Payment {
-    string id = 1;
+    string paymen_id = 1;
     string order_id = 2;
     string customer_id = 3;
     PaymentMethod payment_method = 4;
@@ -27,6 +27,7 @@ message Payment {
     PENDING = 0;
     COMPLETED = 1;
     FAILED = 2;
+    CANCELED = 3;
   }
 
   // PaymentMethod represents possible payment methods.
@@ -62,22 +63,6 @@ message Payment {
     Payment payment = 1;
   }
 
-  // ListPaymentsRequest represents a request to list payments with optional filtering.
-  message ListPaymentsRequest {
-    int32 page_size = 1;
-    string page_token = 2;
-    string order_id = 3;
-    PaymentStatus status = 4;
-    google.protobuf.Timestamp start_time = 5;
-    google.protobuf.Timestamp end_time = 6;
-  }
-
-  // ListPaymentsResponse represents the response for listing payments.
-  message ListPaymentsResponse {
-    repeated Payment payments = 1;
-    string next_page_token = 2;
-  }
-
   // PaymentService defines the payment service.
   service PaymentService {
     // CreatePayment creates a new payment.
@@ -85,7 +70,4 @@ message Payment {
 
     // GetPayment retrieves a payment by ID.
     rpc GetPaymentById(GetPaymentByIdRequest) returns (GetPaymentByIdResponse);
-
-    // ListPayments lists payments with optional filtering.
-    rpc ListPayments(ListPaymentsRequest) returns (ListPaymentsResponse);
   }
