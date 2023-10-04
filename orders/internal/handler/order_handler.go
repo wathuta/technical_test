@@ -136,7 +136,7 @@ func (h *Handler) UpdateOrder(ctx context.Context, req *orderspb.UpdateOrderRequ
 	}
 	order := model.OrderFromProto(req.Order)
 	updatedOrderDetails := model.UpdateOrderMaping(mask.Fields, *order)
-
+	updatedOrderDetails["updated_at"] = time.Now()
 	// if fieldmask is empty perfom get
 	if len(mask.Fields) == 0 || len(updatedOrderDetails) == 0 {
 		slog.Debug("no fields to update")

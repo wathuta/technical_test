@@ -97,6 +97,7 @@ func (h *Handler) UpdateProduct(ctx context.Context, req *productspb.UpdateProdu
 
 	product := model.ProductFromProto(req.Product)
 	updateProductDetails := model.UpdateProductMapping(mask.Fields, *product)
+	updateProductDetails["updated_at"]=time.Now()
 	if len(mask.Fields) == 0 || len(updateProductDetails) == 0 {
 
 		slog.Debug("no fields to update")
