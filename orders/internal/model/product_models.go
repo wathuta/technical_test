@@ -11,12 +11,12 @@ import (
 type ProductCategory string
 
 const (
-	Electronics ProductCategory = "electronics"
-	Clothing    ProductCategory = "clothing"
-	Books       ProductCategory = "books"
-	Food        ProductCategory = "food"
-	Toys        ProductCategory = "toys"
-	Other       ProductCategory = "other"
+	Electronics ProductCategory = "ELECTRONICS"
+	Clothing    ProductCategory = "CLOTHING"
+	Books       ProductCategory = "BOOKS"
+	Food        ProductCategory = "FOOD"
+	Toys        ProductCategory = "TOYS"
+	Other       ProductCategory = "OTHER"
 )
 
 // ProductAttributes represents attributes of a product.
@@ -28,7 +28,7 @@ type ProductAttributes struct {
 
 // Product represents a product.
 type Product struct {
-	ProductID         string          `validate:"required" db:"product_id"`
+	ProductID         string          `validate:"required,uuid" db:"product_id"`
 	Name              string          `validate:"required" db:"name"`
 	Sku               string          `validate:"required" db:"sku"`
 	Category          ProductCategory `validate:"required" db:"category"`
@@ -38,18 +38,6 @@ type Product struct {
 	CreatedAt         time.Time `validate:"-" db:"created_at"`
 	UpdatedAt         time.Time `validate:"-" db:"updated_at"`
 	DeletedAt         time.Time `validate:"-" db:"deleted_at"`
-}
-
-type UpdateProductRequest struct {
-	ProductID     string          `validate:"omitempty"`
-	Name          string          `validate:"omitempty"`
-	Sku           string          `validate:"omitempty"`
-	Category      ProductCategory `validate:"omitempty"`
-	Brand         string          `validate:"omitempty"`
-	Model         string          `validate:"omitempty"`
-	Price         float64         `validate:"omitempty,gt=0"`
-	StockQuantity int32           `validate:"omitempty,gt=0"`
-	IsAvailable   bool            `validate:"omitempty"`
 }
 
 // ValidateProductCategory validates if a Product's Category is a valid enum value.
@@ -63,19 +51,21 @@ func ValidateProductCategory(category ProductCategory) bool {
 }
 
 func ProductFromProto(e *productspb.Product) *Product {
-	return &Product{
-		Name:      e.Name,
-		Sku:       e.Sku,
-		ProductID: e.ProductId,
-		Category:  ProductCategory(e.Category.String()),
-		ProductAttributes: ProductAttributes{
-			Brand: e.Attributes.Brand,
-			Model: e.Attributes.Model,
-			Price: e.Attributes.Price,
-		},
+	product := &Product{
+		Name:          e.Name,
+		Sku:           e.Sku,
+		ProductID:     e.ProductId,
+		Category:      ProductCategory(e.Category.String()),
 		StockQuantity: e.StockQuantity,
 		IsAvailable:   e.IsAvailable,
 	}
+
+	if e.Attributes != nil {
+		product.Brand = e.Attributes.Brand
+		product.Model = e.Attributes.Model
+		product.Price = e.Attributes.Price
+	}
+	return product
 }
 func (c *Product) Proto() *productspb.Product {
 	return &productspb.Product{

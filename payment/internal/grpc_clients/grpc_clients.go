@@ -9,5 +9,5 @@ type ServiceResult struct {
 }
 
 type OrderServiceClient interface {
-	UpdateOrderDetails(orderId string, status orders.OrderStatus) <-chan ServiceResult
+	UpdateOrderDetails(orderId string, status orders.OrderStatus) chan ServiceResult
 }

@@ -1,6 +1,7 @@
 package model
 
 import (
+	"fmt"
 	"time"
 
 	paymentpb "github.com/wathuta/technical_test/protos_gen/payment"
@@ -22,14 +23,15 @@ const (
 	PaymentStatus_PENDING   PaymentStatus = "PENDING"
 	PaymentStatus_COMPLETED PaymentStatus = "COMPLETED"
 	PaymentStatus_FAILED    PaymentStatus = "FAILED"
+	PaymentStatus_CANCELED  PaymentStatus = "CANCELED"
 )
 
 type Payment struct {
-	PaymentID         string        `validate:"required" db:"id"`
-	OrderID           string        `validate:"required" db:"order_id"`
-	CustomerID        string        `validate:"required" db:"customer_id"`
+	PaymentID         string        `validate:"required,uuid" db:"id"`
+	OrderID           string        `validate:"required,uuid" db:"order_id"`
+	CustomerID        string        `validate:"required,uuid" db:"customer_id"`
 	PaymentMethod     PaymentMethod `validate:"required" db:"payment_method"`
-	MerchantRequestID string        `validate:"required" db:"merchant_request_id"`
+	MerchantRequestID string        `validate:"omitempty" db:"merchant_request_id"`
 	Amount            float64       `validate:"required" db:"amount"`
 	Currency          string        `validate:"required" db:"currency"`
 	Status            PaymentStatus `validate:"required" db:"status"`
@@ -51,12 +53,13 @@ func PaymentFromProto(e *paymentpb.Payment) *Payment {
 }
 
 func (p *Payment) Proto() *paymentpb.Payment {
+	fmt.Println(p.Status)
 	return &paymentpb.Payment{
 		Id:            p.PaymentID,
 		OrderId:       p.OrderID,
 		PaymentMethod: paymentpb.PaymentMethod(paymentpb.PaymentMethod_value[string(p.PaymentMethod)]),
 		Amount:        p.Amount,
-		Status:        paymentpb.PaymentStatus(paymentpb.PaymentMethod_value[string(p.Status)]),
+		Status:        paymentpb.PaymentStatus(paymentpb.PaymentStatus_value[string(p.Status)]),
 		ProductCost:   int64(p.ProductCost),
 		CustomerId:    p.CustomerID,
 		ShippingFee:   int64(p.ShippingCost),
@@ -66,7 +69,7 @@ func (p *Payment) Proto() *paymentpb.Payment {
 	}
 
 }
-func CheckEnums(req *paymentpb.CreatePaymentRequest) bool {
+func CheckNotAValidEnum(req *paymentpb.CreatePaymentRequest) bool {
 	// Check if the PaymentMethod is neither CREDIT_CARD nor MPESA
 	return req.PaymentMethod != paymentpb.PaymentMethod_CREDIT_CARD &&
 		req.PaymentMethod != paymentpb.PaymentMethod_MPESA

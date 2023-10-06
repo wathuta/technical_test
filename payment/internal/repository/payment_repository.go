@@ -2,8 +2,6 @@ package repository
 
 import (
 	"context"
-	"fmt"
-	"reflect"
 
 	"github.com/wathuta/technical_test/payment/internal/model"
 )
@@ -16,15 +14,6 @@ func (r *repository) CreatePayment(ctx context.Context, payment *model.Payment) 
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
 		RETURNING id, order_id, customer_id, payment_method, merchant_request_id, amount, currency, status, description, shipping_cost, product_cost, created_at, updated_at
 	`
-
-	val := reflect.ValueOf(*payment)
-	typ := val.Type()
-
-	for i := 0; i < val.NumField(); i++ {
-		field := typ.Field(i)
-		value := val.Field(i)
-		fmt.Printf("Field: %s, Value: %v\n", field.Name, value.Interface())
-	}
 
 	// Execute the SQL query and scan the result into the createdPayment struct
 	err := r.connection.QueryRowContext(

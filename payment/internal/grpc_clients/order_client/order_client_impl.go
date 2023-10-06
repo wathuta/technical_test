@@ -2,7 +2,7 @@ package orderclient
 
 import (
 	"context"
-	"errors"
+	"fmt"
 
 	grpcclients "github.com/wathuta/technical_test/payment/internal/grpc_clients"
 	orderspb "github.com/wathuta/technical_test/protos_gen/orders"
@@ -15,7 +15,7 @@ type orderClient struct {
 	client orderspb.OrderServiceClient
 }
 
-func NewOrderClient(host, grpcAuthKey string) (grpcclients.OrderServiceClient, error) {
+func NewOrderClient(host string) (grpcclients.OrderServiceClient, error) {
 	conn, err := grpc.Dial(host, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return nil, err
@@ -26,7 +26,7 @@ func NewOrderClient(host, grpcAuthKey string) (grpcclients.OrderServiceClient, e
 		client: client,
 	}, nil
 }
-func (oc *orderClient) UpdateOrderDetails(orderId string, status orderspb.OrderStatus) <-chan grpcclients.ServiceResult {
+func (oc *orderClient) UpdateOrderDetails(orderId string, status orderspb.OrderStatus) chan grpcclients.ServiceResult {
 	output := make(chan grpcclients.ServiceResult)
 
 	go func() {
@@ -43,12 +43,11 @@ func (oc *orderClient) UpdateOrderDetails(orderId string, status orderspb.OrderS
 		res, err := oc.client.UpdateOrder(context.Background(), args)
 		if err != nil {
 			output <- grpcclients.ServiceResult{Error: err}
+		} else if res.Order.OrderStatus != orderspb.OrderStatus_ORDER_STATUS_PROCESSING {
+			output <- grpcclients.ServiceResult{Error: fmt.Errorf("failed to update order status to processing, order status is %s", res.Order.OrderStatus)}
+		} else {
+			output <- grpcclients.ServiceResult{Result: res.Order, Error: nil}
 		}
-
-		if res.Order.OrderStatus != orderspb.OrderStatus_ORDER_STATUS_PROCESSING {
-			output <- grpcclients.ServiceResult{Error: errors.New("failed to update errors")}
-		}
-		output <- grpcclients.ServiceResult{Result: res.Order, Error: nil}
 	}()
 	return output
 }
