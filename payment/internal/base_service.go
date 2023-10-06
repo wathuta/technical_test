@@ -10,6 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
 	"github.com/wathuta/technical_test/payment/internal/config"
+	orderclient "github.com/wathuta/technical_test/payment/internal/grpc_clients/order_client"
 	"github.com/wathuta/technical_test/payment/internal/handler"
 	"github.com/wathuta/technical_test/payment/internal/platform/mpesa"
 	"github.com/wathuta/technical_test/payment/internal/repository"
@@ -46,20 +47,23 @@ func NewService(ctx context.Context, db *sqlx.DB, opts Options) (*Service, error
 		ConsumerKey:    os.Getenv(config.MpesaConsumerKeyEnvVar),
 		ConsumerSecret: os.Getenv(config.MpesaConsumerSecreteEnvVar),
 	})
-
-	handler := handler.New(repo, mpesaService)
+	clients, err := orderclient.NewOrderClient(os.Getenv(config.OrderServiceListenAddressEnvVar))
+	if err != nil {
+		return nil, err
+	}
+	handler := handler.New(repo, mpesaService, clients)
 
 	paymentpb.RegisterPaymentServiceServer(grpcSrv, handler)
 
+	go func() {
+		serveHTTP(handler)
+	}()
 	go func() {
 		fmt.Println("GRPC Server is running on:", listener.Addr())
 		if err := grpcSrv.Serve(listener); err != nil {
 			slog.Error("error", err)
 			os.Exit(1)
 		}
-	}()
-	go func() {
-		serveHTTP(handler)
 	}()
 
 	return &Service{db: db, grpcSrv: grpcSrv}, nil
@@ -68,7 +72,7 @@ func NewService(ctx context.Context, db *sqlx.DB, opts Options) (*Service, error
 func serveHTTP(h *handler.Handler) {
 	mux := gin.Default()
 	mux.POST("/callback", h.CallbackHandler)
-	mux.Run("localhost:5002")
+	mux.Run(os.Getenv(config.HTTPListenAddressEnvVar))
 
 	fmt.Println("REST server is running on localhost:5002")
 }

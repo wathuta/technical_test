@@ -3,7 +3,7 @@ package model
 import (
 	"time"
 
-	customersPb "github.com/wathuta/technical_test/protos_gen/customers"
+	customerspb "github.com/wathuta/technical_test/protos_gen/customers"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -19,7 +19,7 @@ type Customer struct {
 	// Add more fields as needed for customers.
 }
 
-func CustomerFromProto(e *customersPb.Customer) *Customer {
+func CustomerFromProto(e *customerspb.Customer) *Customer {
 	return &Customer{
 		Name:        e.Name,
 		Email:       e.Email,
@@ -27,9 +27,9 @@ func CustomerFromProto(e *customersPb.Customer) *Customer {
 		Address:     e.Address,
 	}
 }
-func (c *Customer) Proto() *customersPb.Customer {
+func (c *Customer) Proto() *customerspb.Customer {
 
-	return &customersPb.Customer{
+	return &customerspb.Customer{
 		CustomerId:  c.CustomerID,
 		Name:        c.Name,
 		Email:       c.Email,

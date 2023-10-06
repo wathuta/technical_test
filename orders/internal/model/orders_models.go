@@ -11,11 +11,11 @@ import (
 
 // Address represents the Address message.
 type Address struct {
-	Street     string `json:"street" db:"street"`
-	City       string `json:"city" db:"city"`
-	State      string `json:"state" db:"state"`
-	PostalCode string `json:"postal_code" db:"postal_code"`
-	Country    string `json:"country" db:"country"`
+	Street     string `validate:"required" json:"street" db:"street"`
+	City       string `validate:"required" json:"city" db:"city"`
+	State      string `validate:"required" json:"state" db:"state"`
+	PostalCode string `validate:"required" json:"postal_code" db:"postal_code"`
+	Country    string `validate:"required" json:"country" db:"country"`
 }
 
 // OrderStatus represents the possible order statuses.
@@ -23,12 +23,17 @@ type OrderStatus string
 
 const (
 	// OrderStatusPending represents the "Pending" order status.
-	OrderStatusPending OrderStatus = "Pending"
+	OrderStatusPending OrderStatus = "ORDER_STATUS_PENDING"
 	// OrderStatusShipped represents the "Shipped" order status.
-	OrderStatusShipped OrderStatus = "Shipped"
+	OrderStatusShipped OrderStatus = "ORDER_STATUS_SHIPPED"
+	// OrderStatusProcessing represents the "Processing" order status.
+	OrderStatusProcessing OrderStatus = "ORDER_STATUS_PROCESSING"
+	// OrderStatusCanceled represents the "Canceled" order status.
+	OrderStatusCanceled OrderStatus = "ORDER_STATUS_CANCELLED"
 	// OrderStatusDelivered represents the "Delivered" order status.
-	OrderStatusDelivered OrderStatus = "Delivered"
+	OrderStatusDelivered OrderStatus = "ORDER_STATUS_DELIVERED"
 	// Add more order statuses as needed.
+	OrderUnspecified OrderStatus = "ORDER_STATUS_UNSPECIFIED"
 )
 
 // PaymentMethod represents the possible payment methods.
@@ -74,34 +79,41 @@ type OrderDetails struct {
 	// Add more fields as needed for order details.
 }
 
-func OrderFromProto(e *orderspb.Order) *Order {
-	return &Order{
-		CustomerID: e.CustomerId,
-		OrderID:    e.OrderId,
-		PickupAddress: Address{
-			Street:     e.PickupAddress.Street,
-			City:       e.PickupAddress.City,
-			State:      e.DeliveryAddress.State,
-			PostalCode: e.PickupAddress.PostalCode,
-			Country:    e.PickupAddress.Country,
-		},
-		DeliveryAddress: Address{
-			Street:     e.DeliveryAddress.Street,
-			City:       e.DeliveryAddress.City,
-			State:      e.DeliveryAddress.State,
-			Country:    e.DeliveryAddress.Country,
-			PostalCode: e.PickupAddress.PostalCode,
-		},
-		ShippingMethod:            e.ShippingMethod,
-		OrderStatus:               OrderStatus(e.OrderStatus.String()),
-		TrackingNumber:            e.TrackingNumber,
-		PaymentMethod:             PaymentMethod(e.PaymentMethod.String()),
-		InvoiceNumber:             e.InvoiceNumber,
-		ShippingCost:              e.ShippingCost,
-		SpecialInstructions:       e.SpecialInstructions,
-		ScheduledPickupDatetime:   e.ScheduledPickupDatetime.AsTime(),
-		ScheduledDeliveryDatetime: e.ScheduledDeliveryDatetime.AsTime(),
+func OrderFromProto(req *orderspb.Order) *Order {
+
+	order := &Order{
+		CustomerID:                req.CustomerId,
+		OrderID:                   req.OrderId,
+		ShippingMethod:            req.ShippingMethod,
+		OrderStatus:               OrderStatus(req.OrderStatus.String()),
+		TrackingNumber:            req.TrackingNumber,
+		PaymentMethod:             PaymentMethod(req.PaymentMethod.String()),
+		InvoiceNumber:             req.InvoiceNumber,
+		ShippingCost:              req.ShippingCost,
+		SpecialInstructions:       req.SpecialInstructions,
+		ScheduledPickupDatetime:   req.ScheduledPickupDatetime.AsTime(),
+		ScheduledDeliveryDatetime: req.ScheduledDeliveryDatetime.AsTime(),
 	}
+	if req.PickupAddress != nil {
+		order.PickupAddress = Address{
+			Street:     req.PickupAddress.Street,
+			City:       req.PickupAddress.City,
+			State:      req.PickupAddress.State,
+			PostalCode: req.PickupAddress.PostalCode,
+			Country:    req.PickupAddress.Country,
+		}
+	}
+
+	if req.DeliveryAddress != nil {
+		order.DeliveryAddress = Address{
+			Street:     req.DeliveryAddress.Street,
+			City:       req.DeliveryAddress.City,
+			State:      req.DeliveryAddress.State,
+			Country:    req.DeliveryAddress.Country,
+			PostalCode: req.PickupAddress.PostalCode,
+		}
+	}
+	return order
 }
 
 func (o *Order) Proto() *orderspb.Order {
@@ -122,16 +134,18 @@ func (o *Order) Proto() *orderspb.Order {
 			PostalCode: o.DeliveryAddress.PostalCode,
 			State:      o.DeliveryAddress.State,
 		},
-		ShippingMethod:      o.ShippingMethod,
-		OrderStatus:         orderspb.OrderStatus(orderspb.OrderStatus_value[string(o.OrderStatus)]),
-		TrackingNumber:      o.TrackingNumber,
-		ShippingCost:        o.ShippingCost,
-		InvoiceNumber:       o.InvoiceNumber,
-		PaymentMethod:       orderspb.PaymentMethod(orderspb.OrderStatus_value[string(o.PaymentMethod)]),
-		SpecialInstructions: o.SpecialInstructions,
-		CreatedAt:           timestamppb.New(o.CreatedAt),
-		UpdatedAt:           timestamppb.New(o.UpdatedAt),
-		DeletedAt:           timestamppb.New(o.DeletedAt),
+		ShippingMethod:            o.ShippingMethod,
+		OrderStatus:               orderspb.OrderStatus(orderspb.OrderStatus_value[string(o.OrderStatus)]),
+		TrackingNumber:            o.TrackingNumber,
+		ShippingCost:              o.ShippingCost,
+		InvoiceNumber:             o.InvoiceNumber,
+		PaymentMethod:             orderspb.PaymentMethod(orderspb.PaymentMethod_value[string(o.PaymentMethod)]),
+		SpecialInstructions:       o.SpecialInstructions,
+		ScheduledPickupDatetime:   timestamppb.New(o.ScheduledPickupDatetime),
+		ScheduledDeliveryDatetime: timestamppb.New(o.ScheduledDeliveryDatetime),
+		CreatedAt:                 timestamppb.New(o.CreatedAt),
+		UpdatedAt:                 timestamppb.New(o.UpdatedAt),
+		DeletedAt:                 timestamppb.New(o.DeletedAt),
 	}
 }
 

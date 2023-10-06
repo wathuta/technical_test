@@ -2,11 +2,14 @@ package internal
 
 import (
 	"context"
+	"fmt"
 	"net"
 	"os"
 	"time"
 
 	"github.com/jmoiron/sqlx"
+	"github.com/wathuta/technical_test/orders/internal/config"
+	paymentclient "github.com/wathuta/technical_test/orders/internal/grpc_clients/payment_client"
 	handler "github.com/wathuta/technical_test/orders/internal/handler"
 
 	customersPb "github.com/wathuta/technical_test/protos_gen/customers"
@@ -42,15 +45,18 @@ func NewService(ctx context.Context, db *sqlx.DB, opts Options) (*Service, error
 	}
 
 	repo := repository.NewRepository(db)
-
-	handler := handler.New(repo)
+	clients, err := paymentclient.NewPaymentClient(os.Getenv(config.PaymentServiceListenAddressEnvVar))
+	if err != nil {
+		return nil, err
+	}
+	handler := handler.New(repo, clients)
 
 	ordersPb.RegisterOrderServiceServer(grpcSrv, handler)
 	customersPb.RegisterCustomerServiceServer(grpcSrv, handler)
 	prductsPb.RegisterProductServiceServer(grpcSrv, handler)
 
 	go func() {
-		slog.Info("starting the server", "listening address:", listener.Addr().String())
+		fmt.Println("GRPC Server is running on:", listener.Addr())
 		if err := grpcSrv.Serve(listener); err != nil {
 			slog.Error("error", err)
 			os.Exit(1)
