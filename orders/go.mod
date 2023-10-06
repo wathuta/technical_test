@@ -11,8 +11,9 @@ require (
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/joho/godotenv v1.5.1
 	github.com/stretchr/testify v1.8.2
+	github.com/wathuta/technical_test v0.0.0-20231006134347-1eb2c19e8b30
 	github.com/wathuta/technical_test/protos_gen/customers v0.0.0-20231003125621-769245e45fcf
-	github.com/wathuta/technical_test/protos_gen/orders v0.0.0-20231003125621-769245e45fcf
+	github.com/wathuta/technical_test/protos_gen/orders v0.0.0-20231006134347-1eb2c19e8b30
 	github.com/wathuta/technical_test/protos_gen/products v0.0.0-20231003125621-769245e45fcf
 	golang.org/x/exp v0.0.0-20230905200255-921286631fa9
 	google.golang.org/genproto v0.0.0-20230711160842-782d3b101e98

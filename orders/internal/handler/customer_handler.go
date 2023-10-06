@@ -22,18 +22,20 @@ func (h *Handler) CreateCustomer(ctx context.Context, req *customersPb.CreateCus
 	}
 	slog.Debug("creating customer", "customer_email", req.Customer.Email)
 
-	resource := model.CustomerFromProto(req.Customer)
+	customer := model.CustomerFromProto(req.Customer)
 	// generate id for new resource
-	resource.CustomerID = uuid.New().String()
-	resource.CreatedAt = time.Now()
+	customer.CustomerID = uuid.New().String()
+	customer.CreatedAt = time.Now()
 
-	if err := common.ValidateGeneric(resource); err != nil {
-		slog.Error("failed to validate customer resource", "error", err)
+	validator := common.NewValidator()
+
+	if err := validator.Struct(customer); err != nil {
+		slog.Error("failed to validate payment", "error", err)
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
 	//persist to db
-	resource, err := h.repo.CreateCustomer(ctx, resource)
+	resource, err := h.repo.CreateCustomer(ctx, customer)
 	if err != nil {
 		slog.Error("failed to create customer in db", "error", err)
 		return nil, errInternal

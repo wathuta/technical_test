@@ -178,10 +178,12 @@ github.com/stretchr/testify v1.8.0/go.mod h1:yNjHg4UonilssWZ8iaSj1OCr/vHnekPRkoO
 github.com/stretchr/testify v1.8.1/go.mod h1:w2LPCIKwWwSfY2zedu0+kehJoqGctiVI29o6fzry7u4=
 github.com/stretchr/testify v1.8.2 h1:+h33VjcLVPDHtOdpUCuF+7gSuG3yGIftsP1YvFihtJ8=
 github.com/stretchr/testify v1.8.2/go.mod h1:w2LPCIKwWwSfY2zedu0+kehJoqGctiVI29o6fzry7u4=
+github.com/wathuta/technical_test v0.0.0-20231006134347-1eb2c19e8b30 h1:wwSboePrE6tkWYs6BGeaLJYfcRFE5U7J3BPCkz9K3KE=
+github.com/wathuta/technical_test v0.0.0-20231006134347-1eb2c19e8b30/go.mod h1:zO5MC+pigV9Rf17pGHCVTFFsJrNAJUWduRk/Syj/emk=
 github.com/wathuta/technical_test/protos_gen/customers v0.0.0-20231003125621-769245e45fcf h1:C/0ZUBUbRjMb7C9fgoisri3q9ml4QCv6sEONTyXV2AU=
 github.com/wathuta/technical_test/protos_gen/customers v0.0.0-20231003125621-769245e45fcf/go.mod h1:Ed51EF0Q08OTR1Apq0p77KD0fh9ZnRoXZga5Wm9zvm0=
-github.com/wathuta/technical_test/protos_gen/orders v0.0.0-20231003125621-769245e45fcf h1:gPXnTip7lJ0QcDdbXufKvAx/tN8C+0j5JGIbtaeu+nE=
-github.com/wathuta/technical_test/protos_gen/orders v0.0.0-20231003125621-769245e45fcf/go.mod h1:xR5gI7pi+876XDK+O24WZSoppzbNN+vdZPdCpvCmww0=
+github.com/wathuta/technical_test/protos_gen/orders v0.0.0-20231006134347-1eb2c19e8b30 h1:+VaefPHISnYNU9WFKDif0y7S0PxogYQQadKJUnVDWDE=
+github.com/wathuta/technical_test/protos_gen/orders v0.0.0-20231006134347-1eb2c19e8b30/go.mod h1:xR5gI7pi+876XDK+O24WZSoppzbNN+vdZPdCpvCmww0=
 github.com/wathuta/technical_test/protos_gen/products v0.0.0-20231003125621-769245e45fcf h1:FDnvv9Lf2zczmHZo0uZMYaK8/96oPLcAAqKuT0IQkVg=
 github.com/wathuta/technical_test/protos_gen/products v0.0.0-20231003125621-769245e45fcf/go.mod h1:FyDY9jd5DXHEtX9zhWJjMCNFwdB6y42ASv6wLo7qe6k=
 github.com/yuin/goldmark v1.4.13/go.mod h1:6yULJ656Px+3vBD8DxQVa3kxgyrAnzto9xy5taEt/CY=

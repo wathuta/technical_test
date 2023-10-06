@@ -21,7 +21,7 @@ func main() {
 	programLevel.Set(slog.LevelDebug)
 
 	if !config.HasAllEnvVariables() {
-		envFileName := ".env.dev"
+		envFileName := ".env.payment"
 		slog.Info("loading env file", "fileName", envFileName)
 		err = godotenv.Load(envFileName)
 		if err != nil {
@@ -44,7 +44,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	service, err := internal.NewService(context.Background(), db, internal.Options{ListenAddress: os.Getenv(config.ListenAddressEnvVar)})
+	service, err := internal.NewService(context.Background(), db, internal.Options{ListenAddress: os.Getenv(config.GRPCListenAddressEnvVar)})
 	if err != nil {
 		slog.Error("failed to start service", "error", err)
 		os.Exit(1)

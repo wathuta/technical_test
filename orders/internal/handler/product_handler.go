@@ -23,27 +23,28 @@ func (h *Handler) CreateProduct(ctx context.Context, req *productspb.CreateProdu
 	}
 	slog.Debug("creating product", "product_name", req.Product.Name)
 
-	resource := model.ProductFromProto(req.Product)
+	product := model.ProductFromProto(req.Product)
 
-	resource.ProductID = uuid.New().String()
-	resource.CreatedAt = time.Now()
-	resource.DeletedAt = time.Time{}
+	product.ProductID = uuid.New().String()
+	product.CreatedAt = time.Now()
+	product.DeletedAt = time.Time{}
 
 	// validate Model
-	if err = common.ValidateGeneric(resource); err != nil {
-		slog.Error("failed to validate product resource", "error", err)
+	validator := common.NewValidator()
+	if err := validator.Struct(product); err != nil {
+		slog.Error("failed to validate payment", "error", err)
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
 	// persist in db
-	resource, err = h.repo.CreateProduct(ctx, resource)
+	product, err = h.repo.CreateProduct(ctx, product)
 	if err != nil {
 		slog.Error("failed to create product in db", "error", err)
 		return nil, errInternal
 	}
 	slog.Debug("create product successful")
 	return &productspb.CreateProductResponse{
-		Product: resource.Proto(),
+		Product: product.Proto(),
 	}, nil
 }
 
@@ -60,7 +61,7 @@ func (h *Handler) GetProductById(ctx context.Context, req *productspb.GetProduct
 		return nil, errBadRequest
 	}
 
-	resource, err := h.repo.GetProductById(ctx, req.ProductId)
+	product, err := h.repo.GetProductById(ctx, req.ProductId)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			slog.Error("product with the given product_id not found", "product_id", productUUID, "error", err)
@@ -71,7 +72,7 @@ func (h *Handler) GetProductById(ctx context.Context, req *productspb.GetProduct
 	}
 
 	slog.Debug("get product successful")
-	return &productspb.GetProductByIdResponse{Product: resource.Proto()}, nil
+	return &productspb.GetProductByIdResponse{Product: product.Proto()}, nil
 }
 func (h *Handler) UpdateProduct(ctx context.Context, req *productspb.UpdateProductRequest) (*productspb.UpdateProductResponse, error) {
 	if req == nil || req.Product == nil {
@@ -96,8 +97,11 @@ func (h *Handler) UpdateProduct(ctx context.Context, req *productspb.UpdateProdu
 	}
 
 	product := model.ProductFromProto(req.Product)
+
+	// map the field to be updated with the respective table names in the database
 	updateProductDetails := model.UpdateProductMapping(mask.Fields, *product)
-	updateProductDetails["updated_at"]=time.Now()
+	updateProductDetails["updated_at"] = time.Now()
+
 	if len(mask.Fields) == 0 || len(updateProductDetails) == 0 {
 
 		slog.Debug("no fields to update")
@@ -111,7 +115,8 @@ func (h *Handler) UpdateProduct(ctx context.Context, req *productspb.UpdateProdu
 			return nil, errInternal
 		}
 	} else {
-		//persist in db
+
+		//persist in dbcall
 		product, err = h.repo.UpdateProductFields(ctx, productUUID.String(), updateProductDetails)
 		if err != nil {
 			if err == sql.ErrNoRows {

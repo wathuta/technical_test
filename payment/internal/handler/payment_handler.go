@@ -20,11 +20,10 @@ import (
 )
 
 func (h *Handler) CreatePayment(ctx context.Context, req *paymentpb.CreatePaymentRequest) (*paymentpb.CreatePaymentResponse, error) {
-	if req == nil || len(req.OrderId) == 0 || model.CheckEnums(req) {
+	if req == nil || len(req.OrderId) == 0 || model.CheckNotAValidEnum(req) {
 		slog.Error("invalid request", "error", errResourceRequired)
 		return nil, errResourceRequired
 	}
-
 	payment := &model.Payment{
 		PaymentID:     uuid.New().String(),
 		OrderID:       req.OrderId,
@@ -40,6 +39,13 @@ func (h *Handler) CreatePayment(ctx context.Context, req *paymentpb.CreatePaymen
 		UpdatedAt:     time.Now(),
 	}
 
+	validator := common.NewValidator()
+
+	if err := validator.Struct(payment); err != nil {
+		slog.Error("failed to validate payment", "error", err)
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
+
 	// Format the current time as "yyyyMMddHHmmss"
 	formattedTime := time.Now().Format("20060102150405")
 
@@ -48,7 +54,7 @@ func (h *Handler) CreatePayment(ctx context.Context, req *paymentpb.CreatePaymen
 	password := base64.StdEncoding.EncodeToString([]byte(combinedValue))
 
 	callbackURL := fmt.Sprintf("%s%s", os.Getenv(config.CallBackBaseURL), "/callback")
-
+	fmt.Println(callbackURL)
 	resp, err := h.mpesa.InitiateSTKPushRequest(&model.STKPushRequestBody{
 		Timestamp:         formattedTime,
 		Amount:            int(math.Ceil(req.Amount)),
@@ -65,14 +71,10 @@ func (h *Handler) CreatePayment(ctx context.Context, req *paymentpb.CreatePaymen
 	})
 	if err != nil {
 		slog.Error("initiating Stk push failed", "error", err)
-		return nil, err
+		return nil, errInternal
 	}
 
 	payment.MerchantRequestID = resp.MerchantRequestID
-	if err = common.ValidateGeneric(payment); err != nil {
-		slog.Error("failed to validate payment", "error", err)
-		return nil, status.Error(codes.InvalidArgument, err.Error())
-	}
 
 	payment, err = h.repo.CreatePayment(ctx, payment)
 	if err != nil {
@@ -109,8 +111,4 @@ func (h *Handler) GetPaymentById(ctx context.Context, req *paymentpb.GetPaymentB
 
 	slog.Debug("get payment successful")
 	return &paymentpb.GetPaymentByIdResponse{Payment: resource.Proto()}, nil
-}
-
-func (h *Handler) ListPayments(ctx context.Context, req *paymentpb.ListPaymentsRequest) (*paymentpb.ListPaymentsResponse, error) {
-	return &paymentpb.ListPaymentsResponse{}, nil
 }

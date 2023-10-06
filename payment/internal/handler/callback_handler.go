@@ -2,11 +2,11 @@ package handler
 
 import (
 	"database/sql"
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/wathuta/technical_test/payment/internal/model"
+	orderspb "github.com/wathuta/technical_test/protos_gen/orders"
 	"golang.org/x/exp/slog"
 )
 
@@ -30,34 +30,34 @@ func (h *Handler) CallbackHandler(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, map[string]string{"message": "Internal error"})
 		return
 	}
-	fmt.Println(payment, callbackResponse)
 	switch callbackResponse.Body.StkCallback.ResultCode {
 	case 0:
-		// result := <-h.OrderServiceClient.UpdateOrderDetails(payment.OrderID, orderspb.OrderStatus_ORDER_STATUS_PROCESSING)
-		// if result.Error != nil {
-		// 	slog.Error("failed to update order record from in order service", "error", err)
-		// 	ctx.JSON(http.StatusInternalServerError, map[string]string{"message": "Internal error"})
-		// }
-		payment, err = h.repo.UpdatePaymentStatus(ctx, model.PaymentStatus_PENDING, payment.PaymentID)
-		if err != nil {
-			slog.Error("failed to update payment status in db", "error", err, "payment_id", payment.PaymentID)
+		result := <-h.clients.UpdateOrderDetails(payment.OrderID, orderspb.OrderStatus_ORDER_STATUS_PROCESSING)
+		if result.Error != nil {
+			slog.Error("failed to update order record from in order service", "error", result.Error)
 			ctx.JSON(http.StatusInternalServerError, map[string]string{"message": "Internal error"})
 			return
 		}
-		// to do update payment status
-		slog.Debug("Update order status successful")
-	case 1032:
-		payment, err := h.repo.UpdatePaymentStatus(ctx, model.PaymentStatus_PENDING, payment.PaymentID)
+		payment, err = h.repo.UpdatePaymentStatus(ctx, model.PaymentStatus_COMPLETED, payment.PaymentID)
 		if err != nil {
 			slog.Error("failed to update payment status in db", "error", err)
 			ctx.JSON(http.StatusInternalServerError, map[string]string{"message": "Internal error"})
 			return
 		}
-		slog.Debug("Transaction canceled by user", "payment_id", payment.PaymentID)
+		// to do update payment status
+		slog.Debug("Update order status successful", "payment_id", payment.PaymentID)
+	case 1032:
+		payment, err := h.repo.UpdatePaymentStatus(ctx, model.PaymentStatus_CANCELED, payment.PaymentID)
+		if err != nil {
+			slog.Error("failed to update payment status in db", "error", err)
+			ctx.JSON(http.StatusInternalServerError, map[string]string{"message": "Internal error"})
+			return
+		}
+		slog.Debug("Transaction canceled by user", "payment", payment)
 		ctx.JSON(http.StatusPaymentRequired, map[string]string{"status": "payment canceled"})
 		return
 	default:
-		payment, err := h.repo.UpdatePaymentStatus(ctx, model.PaymentStatus_FAILED, payment.PaymentID)
+		payment, err := h.repo.UpdatePaymentStatus(ctx, model.PaymentStatus_PENDING, payment.PaymentID)
 		if err != nil {
 			slog.Error("failed to update payment status in db", "error", err)
 			ctx.JSON(http.StatusInternalServerError, map[string]string{"message": "Internal error"})
@@ -68,5 +68,5 @@ func (h *Handler) CallbackHandler(ctx *gin.Context) {
 		return
 
 	}
-	ctx.JSON(http.StatusOK, map[string]string{"status": "payment processing"})
+	ctx.JSON(http.StatusOK, map[string]string{"status": "payment successful"})
 }
