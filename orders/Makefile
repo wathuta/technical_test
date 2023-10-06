@@ -1,7 +1,9 @@
-include .env.dev
+include .env.orders
 
 DATABASE_URL = postgresql://$(DB_USER):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)?sslmode=disable
 MIGRATIONS_FOLDER = $(PWD)/internal/platform/migrations
+BUILD_DIR = $(PWD)/build
+API_APP_NAME = apiserver
 
 
 unit-test:
@@ -29,4 +31,11 @@ show-db:
 gen-mocks: # generate mocks for all interfaces
 	mockery --all --dir ./internal --recursive  --outpkg mocks --output ./internal/mocks
 
+run-api: clean flush-db migrate.up build
+	$(BUILD_DIR)/$(API_APP_NAME)
 
+build:
+	CGO_ENABLED=0 go build -o $(BUILD_DIR)/$(API_APP_NAME) main.go
+
+clean:
+	rm -rf $(BUILD_DIR)

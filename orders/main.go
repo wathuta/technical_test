@@ -21,7 +21,7 @@ func main() {
 	programLevel.Set(slog.LevelDebug)
 
 	if !config.HasAllEnvVariables() {
-		envFileName := ".env.dev"
+		envFileName := ".env.orders"
 		slog.Info("loading env file", "fileName", envFileName)
 		err = godotenv.Load(envFileName)
 		if err != nil {

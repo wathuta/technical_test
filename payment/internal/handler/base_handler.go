@@ -9,15 +9,9 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-const (
-	defaultPageSize = 10
-	maxPageSize     = 1000
-	maxUpdateRetry  = 5
-)
-
 var (
 	errInternal                   = status.Error(codes.Internal, "internal error")
-	errNotFound                   = status.Error(codes.InvalidArgument, "resource not found")
+	errNotFound                   = status.Error(codes.NotFound, "resource not found")
 	errResourceRequired           = status.Error(codes.InvalidArgument, "resource required")
 	errResourceUpdateMaskRequired = status.Error(codes.InvalidArgument, "resource update mask required")
 	errBadRequest                 = status.Error(codes.InvalidArgument, "invalid request payload")
@@ -29,17 +23,18 @@ type Handler struct {
 	repo  repository.Repository
 	mpesa mpesa.MpesaService
 
-	grpcclients.OrderServiceClient
+	clients grpcclients.OrderServiceClient
 }
 
 func New(
 	repo repository.Repository,
 	mpesaIntegration mpesa.MpesaService,
-
+	clients grpcclients.OrderServiceClient,
 ) *Handler {
 	return &Handler{
-		repo:  repo,
-		mpesa: mpesaIntegration,
+		repo:    repo,
+		mpesa:   mpesaIntegration,
+		clients: clients,
 	}
 
 }

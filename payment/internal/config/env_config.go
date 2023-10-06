@@ -7,22 +7,24 @@ import (
 )
 
 const (
-	RuntimeStageEnvVar             = "RUNTIME_STAGE"
-	DBPortEnvVar                   = "DB_PORT"
-	DBHostEnvVar                   = "DB_HOST"
-	DBUserEnvVar                   = "DB_USER"
-	DBPassWordEnvVar               = "DB_PASSWORD"
-	DBNameEnvVar                   = "DB_NAME"
-	DBSSLModeEnvVar                = "DB_SSL_MODE"
-	DBMaxConnectionsEnvVar         = "DB_MAX_CONNECTIONS"
-	DBMaxIdleConnectionsEnvVar     = "DB_MAX_IDLE_CONNECTIONS"
-	DBMaxLifetimeConnectionsEnvVar = "DB_MAX_LIFETIME_CONNECTIONS"
-	RunMigrationsEnvVar            = "RUN_MIGRATIONS"
-	ListenAddressEnvVar            = "LISTEN_ADDRESS"
-	MpesaConsumerKeyEnvVar         = "MPESA_CONSUMER_KEY"
-	MpesaConsumerSecreteEnvVar     = "MPESA_CONSUMER_SECRETE"
-	MpesaPassKeyEnv                = "MPESA_PASSKEY"
-	CallBackBaseURL                = "SERVICE_BASEURL"
+	RuntimeStageEnvVar              = "RUNTIME_STAGE"
+	DBPortEnvVar                    = "DB_PORT"
+	DBHostEnvVar                    = "DB_HOST"
+	DBUserEnvVar                    = "DB_USER"
+	DBPassWordEnvVar                = "DB_PASSWORD"
+	DBNameEnvVar                    = "DB_NAME"
+	DBSSLModeEnvVar                 = "DB_SSL_MODE"
+	DBMaxConnectionsEnvVar          = "DB_MAX_CONNECTIONS"
+	DBMaxIdleConnectionsEnvVar      = "DB_MAX_IDLE_CONNECTIONS"
+	DBMaxLifetimeConnectionsEnvVar  = "DB_MAX_LIFETIME_CONNECTIONS"
+	RunMigrationsEnvVar             = "RUN_MIGRATIONS"
+	GRPCListenAddressEnvVar         = "GRPC_LISTEN_ADDRESS"
+	HTTPListenAddressEnvVar         = "HTTP_LISTEN_ADDRESS"
+	MpesaConsumerKeyEnvVar          = "MPESA_CONSUMER_KEY"
+	MpesaConsumerSecreteEnvVar      = "MPESA_CONSUMER_SECRETE"
+	MpesaPassKeyEnv                 = "MPESA_PASSKEY"
+	CallBackBaseURL                 = "CALLBACK_BASEURL"
+	OrderServiceListenAddressEnvVar = "ORDER_SERVICE_LISTEN_ADDRESS"
 )
 
 func HasAllEnvVariables() bool {
@@ -38,10 +40,12 @@ func HasAllEnvVariables() bool {
 		DBMaxIdleConnectionsEnvVar,
 		DBMaxLifetimeConnectionsEnvVar,
 		RunMigrationsEnvVar,
-		ListenAddressEnvVar,
+		GRPCListenAddressEnvVar,
+		HTTPListenAddressEnvVar,
 		MpesaConsumerKeyEnvVar,
 		MpesaConsumerSecreteEnvVar,
 		MpesaPassKeyEnv,
+		OrderServiceListenAddressEnvVar,
 	}
 	for _, v := range requiredEnvVars {
 		value, ok := os.LookupEnv(v)

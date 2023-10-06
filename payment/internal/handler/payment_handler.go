@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -20,10 +21,11 @@ import (
 )
 
 func (h *Handler) CreatePayment(ctx context.Context, req *paymentpb.CreatePaymentRequest) (*paymentpb.CreatePaymentResponse, error) {
-	if req == nil || len(req.OrderId) == 0 || model.CheckEnums(req) {
+	if req == nil || len(req.OrderId) == 0 || model.CheckNotAValidEnum(req) {
 		slog.Error("invalid request", "error", errResourceRequired)
 		return nil, errResourceRequired
 	}
+	slog.Debug("create payment", "order_id", req.OrderId)
 
 	payment := &model.Payment{
 		PaymentID:     uuid.New().String(),
@@ -31,7 +33,7 @@ func (h *Handler) CreatePayment(ctx context.Context, req *paymentpb.CreatePaymen
 		CustomerID:    req.CustomerId,
 		Description:   fmt.Sprintf("Payment for order %s", req.OrderId),
 		Currency:      string(model.KES),
-		PaymentMethod: model.PaymentMethod(req.PaymentMethod),
+		PaymentMethod: model.PaymentMethod(req.PaymentMethod.String()),
 		Amount:        req.Amount,
 		ShippingCost:  float64(req.ShippingFee),
 		ProductCost:   float64(req.ProductCost),
@@ -40,6 +42,17 @@ func (h *Handler) CreatePayment(ctx context.Context, req *paymentpb.CreatePaymen
 		UpdatedAt:     time.Now(),
 	}
 
+	validator := common.NewValidator()
+
+	if err := validator.Struct(payment); err != nil {
+		slog.Error("failed to validate payment", "error", err)
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
+
+	if math.Ceil(payment.Amount) != math.Ceil(float64(req.ShippingFee)+payment.ProductCost) {
+		slog.Error("invalid payment values shipping cost + product price is not equal to amount")
+		return nil, errBadRequest
+	}
 	// Format the current time as "yyyyMMddHHmmss"
 	formattedTime := time.Now().Format("20060102150405")
 
@@ -48,15 +61,15 @@ func (h *Handler) CreatePayment(ctx context.Context, req *paymentpb.CreatePaymen
 	password := base64.StdEncoding.EncodeToString([]byte(combinedValue))
 
 	callbackURL := fmt.Sprintf("%s%s", os.Getenv(config.CallBackBaseURL), "/callback")
-
+	fmt.Println(callbackURL)
 	resp, err := h.mpesa.InitiateSTKPushRequest(&model.STKPushRequestBody{
 		Timestamp:         formattedTime,
 		Amount:            int(math.Ceil(req.Amount)),
 		Password:          password,
 		TransactionType:   string(model.CustomerPayBillOnline),
 		BusinessShortCode: model.BusinessSortCode,
-		PartyA:            req.CustomerPhone,
-		PhoneNumber:       req.CustomerPhone,
+		PartyA:            strings.ReplaceAll(req.CustomerPhone, "+", ""),
+		PhoneNumber:       strings.ReplaceAll(req.CustomerPhone, "+", ""),
 		PartyB:            model.BusinessSortCode,
 		//To do replace order id with tracking number
 		TransactionDesc:  fmt.Sprintf("Payment for order %s", req.OrderId),
@@ -65,14 +78,10 @@ func (h *Handler) CreatePayment(ctx context.Context, req *paymentpb.CreatePaymen
 	})
 	if err != nil {
 		slog.Error("initiating Stk push failed", "error", err)
-		return nil, err
+		return nil, errInternal
 	}
 
 	payment.MerchantRequestID = resp.MerchantRequestID
-	if err = common.ValidateGeneric(payment); err != nil {
-		slog.Error("failed to validate payment", "error", err)
-		return nil, status.Error(codes.InvalidArgument, err.Error())
-	}
 
 	payment, err = h.repo.CreatePayment(ctx, payment)
 	if err != nil {
@@ -109,8 +118,4 @@ func (h *Handler) GetPaymentById(ctx context.Context, req *paymentpb.GetPaymentB
 
 	slog.Debug("get payment successful")
 	return &paymentpb.GetPaymentByIdResponse{Payment: resource.Proto()}, nil
-}
-
-func (h *Handler) ListPayments(ctx context.Context, req *paymentpb.ListPaymentsRequest) (*paymentpb.ListPaymentsResponse, error) {
-	return &paymentpb.ListPaymentsResponse{}, nil
 }
