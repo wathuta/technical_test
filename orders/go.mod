@@ -10,8 +10,10 @@ require (
 	github.com/jackc/pgx/v4 v4.18.1
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/joho/godotenv v1.5.1
+	github.com/stretchr/testify v1.8.2
+	github.com/wathuta/technical_test v0.0.0-20231006134347-1eb2c19e8b30
 	github.com/wathuta/technical_test/protos_gen/customers v0.0.0-20231003125621-769245e45fcf
-	github.com/wathuta/technical_test/protos_gen/orders v0.0.0-20231003125621-769245e45fcf
+	github.com/wathuta/technical_test/protos_gen/orders v0.0.0-20231006134347-1eb2c19e8b30
 	github.com/wathuta/technical_test/protos_gen/products v0.0.0-20231003125621-769245e45fcf
 	golang.org/x/exp v0.0.0-20230905200255-921286631fa9
 	google.golang.org/genproto v0.0.0-20230711160842-782d3b101e98
@@ -20,6 +22,7 @@ require (
 )
 
 require (
+	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.2 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
@@ -35,10 +38,13 @@ require (
 	github.com/jackc/pgtype v1.14.0 // indirect
 	github.com/leodido/go-urn v1.2.4 // indirect
 	github.com/lib/pq v1.10.9 // indirect
+	github.com/pmezard/go-difflib v1.0.0 // indirect
+	github.com/stretchr/objx v0.5.0 // indirect
 	go.uber.org/atomic v1.7.0 // indirect
 	golang.org/x/crypto v0.11.0 // indirect
 	golang.org/x/net v0.12.0 // indirect
 	golang.org/x/sys v0.12.0 // indirect
 	golang.org/x/text v0.11.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20230711160842-782d3b101e98 // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

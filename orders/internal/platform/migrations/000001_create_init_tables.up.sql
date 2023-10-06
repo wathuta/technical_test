@@ -35,6 +35,7 @@ CREATE TABLE orders (
     deleted_at TIMESTAMP
 );
 
+-- order_details handles the many to many relationship between products and orders
 CREATE TABLE order_details (
     order_details_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     order_id UUID NOT NULL,

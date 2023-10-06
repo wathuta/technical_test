@@ -1,6 +1,7 @@
 package handler
 
 import (
+	grpcclients "github.com/wathuta/technical_test/orders/internal/grpc_clients"
 	"github.com/wathuta/technical_test/orders/internal/repository"
 	"github.com/wathuta/technical_test/protos_gen/customers"
 	"github.com/wathuta/technical_test/protos_gen/orders"
@@ -29,12 +30,16 @@ type Handler struct {
 	products.UnimplementedProductServiceServer
 
 	repo repository.Repository
+
+	paymentclients grpcclients.PaymentServiceClient
 }
 
 func New(
 	repo repository.Repository,
+	clients grpcclients.PaymentServiceClient,
 ) *Handler {
 	return &Handler{
-		repo: repo,
+		repo:    repo,
+		paymentclients: clients,
 	}
 }

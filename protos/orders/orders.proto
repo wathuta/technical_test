@@ -84,9 +84,6 @@ service OrderService {
     // Get order details by ID
     rpc GetOrderDetailsById (GetOrderDetailByIdRequest) returns(GetOrderDetailByIdResponse);
 
-    // Update order details
-    rpc UpdateOrderDetails (UpdateOrderDetailsRequest) returns(UpdateOrderDetailsResponse);
-
     // Get Order details by UserID
     rpc ListOrderDetailsByOrderId(ListOrderDetailsByOrderIdRequest) returns (ListOrderDetailsByOrderIdResponse);
 }
@@ -135,9 +132,18 @@ message UpdateOrderDetailsResponse {
 
 // Request to create an order
 message CreateOrderRequest {
-    Order order = 1;
-    string product_id =2;
-    int32 product_quantity =3;
+  string customer_id = 1;
+  string product_id =2;
+  int32 product_quantity =3;
+  Address pickup_address = 4;
+  Address delivery_address = 5;
+  string shipping_method = 6;
+  google.protobuf.Timestamp scheduled_pickup_datetime = 8;
+  google.protobuf.Timestamp scheduled_delivery_datetime = 9;
+  PaymentMethod payment_method = 11;
+  string invoice_number = 12;
+  string special_instructions = 13;
+  double shipping_cost = 14;
 }
 
 // Response after creating an order
