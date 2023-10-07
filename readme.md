@@ -21,3 +21,21 @@
 1. Create a database and replace the database credentials in the .env.orders file.
 2. Run `make start_order_service` in the terminal (in the orders directory the default port is `:5000`)
 3. Some functionality in this service communicate with the `payment service`. Ensure that the payment service is up and healthy to test all the functionality of this api
+
+### Code/File structure
+- ./orders folder contains the implementation of the order service, this includes
+1. Customer management
+2. Product management
+3. Order management
+ The order service has been developed following clean architecture guidelines
+
+- ./payment folder contains the implementation of the payment service. The payment service has intergration to external payment providers api(daraja in this case)
+
+- ./protos folder is a centralized folder to store all the proto file. This is for easier management of the proto files
+
+- ./protos_gen folder contains all the generated code from the protos file. Idealy this creates isolation of concerns; where services only contain functionality logic.
+
+### Note
+- The approach towards documentation is one which code is self documented. Comments are added to the non-intuitive sections of the code.
+- The grpc endpoints can be tested using postman or by developing a custom client
+- Each Service has instruction on how to run unit tests and start the service in the root directory of the service
