@@ -17,7 +17,7 @@ There are no integration tests since it was not part of the requirement
 2. Update the
 3. Run `make run-api` in the terminal (in the payment directory the default port is `:5001` for the grpc endpoints and `:5002` for the REST endpoints)
     - The rest endpoint is used to receive callbacks from daraja api
-4. Some functionality in this service communicate with the `payment service`. Ensure that the payment service is up and healthy to test all the functionality of this api
+4. Some functionality in this service communicate with the `orders service`. Ensure that the payment service is up and healthy to test all the functionality of this api
 
 ### Code/File structure
 All the code logic is written in the internal folder and its subdirectories

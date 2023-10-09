@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -24,13 +25,15 @@ func (h *Handler) CreatePayment(ctx context.Context, req *paymentpb.CreatePaymen
 		slog.Error("invalid request", "error", errResourceRequired)
 		return nil, errResourceRequired
 	}
+	slog.Debug("create payment", "order_id", req.OrderId)
+
 	payment := &model.Payment{
 		PaymentID:     uuid.New().String(),
 		OrderID:       req.OrderId,
 		CustomerID:    req.CustomerId,
 		Description:   fmt.Sprintf("Payment for order %s", req.OrderId),
 		Currency:      string(model.KES),
-		PaymentMethod: model.PaymentMethod(req.PaymentMethod),
+		PaymentMethod: model.PaymentMethod(req.PaymentMethod.String()),
 		Amount:        req.Amount,
 		ShippingCost:  float64(req.ShippingFee),
 		ProductCost:   float64(req.ProductCost),
@@ -46,6 +49,10 @@ func (h *Handler) CreatePayment(ctx context.Context, req *paymentpb.CreatePaymen
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
+	if math.Ceil(payment.Amount) != math.Ceil(float64(req.ShippingFee)+payment.ProductCost) {
+		slog.Error("invalid payment values shipping cost + product price is not equal to amount")
+		return nil, errBadRequest
+	}
 	// Format the current time as "yyyyMMddHHmmss"
 	formattedTime := time.Now().Format("20060102150405")
 
@@ -61,8 +68,8 @@ func (h *Handler) CreatePayment(ctx context.Context, req *paymentpb.CreatePaymen
 		Password:          password,
 		TransactionType:   string(model.CustomerPayBillOnline),
 		BusinessShortCode: model.BusinessSortCode,
-		PartyA:            req.CustomerPhone,
-		PhoneNumber:       req.CustomerPhone,
+		PartyA:            strings.ReplaceAll(req.CustomerPhone, "+", ""),
+		PhoneNumber:       strings.ReplaceAll(req.CustomerPhone, "+", ""),
 		PartyB:            model.BusinessSortCode,
 		//To do replace order id with tracking number
 		TransactionDesc:  fmt.Sprintf("Payment for order %s", req.OrderId),

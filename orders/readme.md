@@ -41,4 +41,3 @@ Default log level is Debug. This can be changed in the main folder
 
 ### Additional information specific to the test
 - The repository layer is to be tested using integration tests
--
