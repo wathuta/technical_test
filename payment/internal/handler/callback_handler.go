@@ -44,7 +44,7 @@ func (h *Handler) CallbackHandler(ctx *gin.Context) {
 			ctx.JSON(http.StatusInternalServerError, map[string]string{"message": "Internal error"})
 			return
 		}
-		// to do update payment status
+
 		slog.Debug("Update order status successful", "payment_id", payment.PaymentID)
 	case 1032:
 		payment, err := h.repo.UpdatePaymentStatus(ctx, model.PaymentStatus_CANCELED, payment.PaymentID)
@@ -63,7 +63,7 @@ func (h *Handler) CallbackHandler(ctx *gin.Context) {
 			ctx.JSON(http.StatusInternalServerError, map[string]string{"message": "Internal error"})
 			return
 		}
-		slog.Info("Transaction failed", "payment_id", payment.PaymentID)
+		slog.Debug("Transaction failed", "payment_id", payment.PaymentID)
 		ctx.JSON(http.StatusPaymentRequired, map[string]string{"status": "payment required"})
 		return
 

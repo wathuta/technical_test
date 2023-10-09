@@ -192,6 +192,7 @@ func (h *Handler) UpdateOrder(ctx context.Context, req *orderspb.UpdateOrderRequ
 	// filtering the field to remain with the fields should be updated as stated in the field mask
 	updatedOrderDetails := model.UpdateOrderMaping(mask.Fields, *order)
 	updatedOrderDetails["updated_at"] = time.Now()
+
 	// if fieldmask is empty perfom get
 	if len(mask.Fields) == 0 || len(updatedOrderDetails) == 0 {
 		slog.Debug("no fields to update")
