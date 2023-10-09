@@ -100,7 +100,8 @@ func (h *Handler) UpdateProduct(ctx context.Context, req *productspb.UpdateProdu
 
 	// map the field to be updated with the respective table names in the database
 	updateProductDetails := model.UpdateProductMapping(mask.Fields, *product)
-	updateProductDetails["updated_at"]=time.Now()
+	updateProductDetails["updated_at"] = time.Now()
+
 	if len(mask.Fields) == 0 || len(updateProductDetails) == 0 {
 
 		slog.Debug("no fields to update")
